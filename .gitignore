@@ -1,0 +1,18 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Data & Checkpoints (keep scripts, ignore heavy binary files)
+data/**/*.parquet
+data/**/*.jsonl
+models/
+outputs/
+ckpts/
+logs/*.log
+logs/metrics/
+logs/tensorboard/
+logs/val_dumps/
+tensorboard_log/
+wandb/
+.DS_Store

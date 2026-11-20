@@ -1,0 +1,55 @@
+### Stage 1 SFT Baseline: ToolRL (RLLA-4k) Full-Parameter SFT on Qwen3-4B-Base-rlla
+###
+### Why `template` is omitted (auto-parsed from `tokenizer.chat_template`):
+###   1. `models/Qwen3-4B-Base-rlla` strips untrained added tokens 151644..151668 and keeps
+###      only the trained `<|endoftext|>` (151643) as `eos_token`.
+###   2. When `template` is omitted, LLaMA-Factory's `parse_template()` reads the model's
+###      Jinja `chat_template` directly (`replace_eos=False`), preserving `eos_token=<|endoftext|>`
+###      (151643) and ensuring 100% token-level prompt/response alignment with VeRL `RLHFDataset`.
+
+### model
+model_name_or_path: /home/ma-user/work/LB/github/agent-rl-lab/models/Qwen3-4B-Base-rlla
+trust_remote_code: true
+flash_attn: fa2
+
+### method
+stage: sft
+do_train: true
+finetuning_type: full
+deepspeed: /home/ma-user/work/LB/LlamaFactory/examples/deepspeed/ds_z2_config.json
+
+### dataset
+dataset_dir: /home/ma-user/work/LB/github/agent-rl-lab/data/rlla_4k
+dataset: rlla_4k_sft_train
+eval_dataset: rlla_4k_sft_test
+cutoff_len: 5120
+overwrite_cache: true
+preprocessing_num_workers: 8
+dataloader_num_workers: 4
+
+### output
+output_dir: /home/ma-user/work/LB/github/agent-rl-lab/outputs/sft/sft-rlla4k-Qwen3-4B-Base-rlla-ep2
+logging_steps: 1
+save_strategy: epoch
+plot_loss: true
+overwrite_output_dir: true
+save_only_model: true
+report_to: tensorboard
+
+### train
+per_device_train_batch_size: 2
+gradient_accumulation_steps: 4
+learning_rate: 1.0e-5
+num_train_epochs: 2.0
+lr_scheduler_type: cosine
+warmup_steps: 6
+bf16: true
+gradient_checkpointing: true
+ddp_timeout: 180000000
+enable_thinking: true
+
+### eval
+do_eval: true
+eval_strategy: steps
+eval_steps: 20
+per_device_eval_batch_size: 4

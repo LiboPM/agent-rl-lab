@@ -3,16 +3,19 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-# Data & Checkpoints (keep scripts, ignore heavy binary files)
+# Data & Checkpoints (keep scripts & dataset_info.json, ignore heavy data/weights)
 data/**/*.parquet
 data/**/*.jsonl
+data/rlla_4k/sft_*.json
 models/
 outputs/
 ckpts/
-logs/*.log
-logs/metrics/
-logs/tensorboard/
-logs/val_dumps/
+
+# Runtime logs & large per-sample evaluation dumps
+logs/
+eval/multi_bench_dumps/
+eval/live_bench_dumps/
 tensorboard_log/
 wandb/
+.archify/
 .DS_Store

@@ -1,0 +1,194 @@
+[
+  {
+    "model": "0. Zero-Shot Base (Qwen3-4B-Base-rlla)",
+    "total_reward": 0.9627,
+    "format_reward": 0.0375,
+    "accuracy_reward": 0.9252,
+    "tool_name_match_pct": 77.08,
+    "strict_exact_match_pct": 43.75,
+    "schema_norm_exact_match_pct": 50.0,
+    "collapsed_pct": 96.25,
+    "avg_think_chars": 299.1,
+    "genuine_reasoning_pct": 93.75,
+    "categories": {
+      "no_tool": {
+        "count": 9,
+        "mean_score": -1.3333,
+        "strict_exact_pct": 33.33,
+        "schema_norm_exact_pct": 33.33
+      },
+      "single_tool": {
+        "count": 36,
+        "mean_score": 1.6986,
+        "strict_exact_pct": 50.0,
+        "schema_norm_exact_pct": 58.33
+      },
+      "multi_tool": {
+        "count": 35,
+        "mean_score": 0.7962,
+        "strict_exact_pct": 40.0,
+        "schema_norm_exact_pct": 45.71
+      }
+    }
+  },
+  {
+    "model": "1. Pure RL (Zero-RL GRPO Step 120)",
+    "total_reward": 2.6107,
+    "format_reward": 0.975,
+    "accuracy_reward": 1.6357,
+    "tool_name_match_pct": 91.67,
+    "strict_exact_match_pct": 56.25,
+    "schema_norm_exact_match_pct": 63.75,
+    "collapsed_pct": 3.75,
+    "avg_think_chars": 284.2,
+    "genuine_reasoning_pct": 97.5,
+    "categories": {
+      "no_tool": {
+        "count": 9,
+        "mean_score": 0.1111,
+        "strict_exact_pct": 77.78,
+        "schema_norm_exact_pct": 77.78
+      },
+      "single_tool": {
+        "count": 36,
+        "mean_score": 2.991,
+        "strict_exact_pct": 58.33,
+        "schema_norm_exact_pct": 66.67
+      },
+      "multi_tool": {
+        "count": 35,
+        "mean_score": 2.8622,
+        "strict_exact_pct": 48.57,
+        "schema_norm_exact_pct": 57.14
+      }
+    }
+  },
+  {
+    "model": "2. Cold-Start SFT (320 Samples, 1 Ep)",
+    "total_reward": 2.3899,
+    "format_reward": 0.95,
+    "accuracy_reward": 1.4399,
+    "tool_name_match_pct": 88.75,
+    "strict_exact_match_pct": 50.0,
+    "schema_norm_exact_match_pct": 56.25,
+    "collapsed_pct": 7.5,
+    "avg_think_chars": 247.3,
+    "genuine_reasoning_pct": 95.0,
+    "categories": {
+      "no_tool": {
+        "count": 9,
+        "mean_score": -0.4444,
+        "strict_exact_pct": 55.56,
+        "schema_norm_exact_pct": 55.56
+      },
+      "single_tool": {
+        "count": 36,
+        "mean_score": 2.8736,
+        "strict_exact_pct": 50.0,
+        "schema_norm_exact_pct": 58.33
+      },
+      "multi_tool": {
+        "count": 35,
+        "mean_score": 2.6212,
+        "strict_exact_pct": 48.57,
+        "schema_norm_exact_pct": 54.29
+      }
+    }
+  },
+  {
+    "model": "3. Pure SFT (Full 3920 Samples, 2 Ep)",
+    "total_reward": 2.9558,
+    "format_reward": 0.9875,
+    "accuracy_reward": 1.9683,
+    "tool_name_match_pct": 94.79,
+    "strict_exact_match_pct": 73.75,
+    "schema_norm_exact_match_pct": 75.0,
+    "collapsed_pct": 3.75,
+    "avg_think_chars": 81.8,
+    "genuine_reasoning_pct": 0.0,
+    "categories": {
+      "no_tool": {
+        "count": 9,
+        "mean_score": 1.0,
+        "strict_exact_pct": 100.0,
+        "schema_norm_exact_pct": 100.0
+      },
+      "single_tool": {
+        "count": 36,
+        "mean_score": 3.0444,
+        "strict_exact_pct": 66.67,
+        "schema_norm_exact_pct": 69.44
+      },
+      "multi_tool": {
+        "count": 35,
+        "mean_score": 3.3675,
+        "strict_exact_pct": 74.29,
+        "schema_norm_exact_pct": 74.29
+      }
+    }
+  },
+  {
+    "model": "4. Full-SFT + RL (GRPO Step 50)",
+    "total_reward": 2.9558,
+    "format_reward": 0.9875,
+    "accuracy_reward": 1.9683,
+    "tool_name_match_pct": 94.79,
+    "strict_exact_match_pct": 73.75,
+    "schema_norm_exact_match_pct": 75.0,
+    "collapsed_pct": 3.75,
+    "avg_think_chars": 81.8,
+    "genuine_reasoning_pct": 0.0,
+    "categories": {
+      "no_tool": {
+        "count": 9,
+        "mean_score": 1.0,
+        "strict_exact_pct": 100.0,
+        "schema_norm_exact_pct": 100.0
+      },
+      "single_tool": {
+        "count": 36,
+        "mean_score": 3.0444,
+        "strict_exact_pct": 66.67,
+        "schema_norm_exact_pct": 69.44
+      },
+      "multi_tool": {
+        "count": 35,
+        "mean_score": 3.3675,
+        "strict_exact_pct": 74.29,
+        "schema_norm_exact_pct": 74.29
+      }
+    }
+  },
+  {
+    "model": "5. Full-SFT + RL (GRPO Step 120)",
+    "total_reward": 2.937,
+    "format_reward": 0.9875,
+    "accuracy_reward": 1.9495,
+    "tool_name_match_pct": 94.79,
+    "strict_exact_match_pct": 72.5,
+    "schema_norm_exact_match_pct": 75.0,
+    "collapsed_pct": 3.75,
+    "avg_think_chars": 81.8,
+    "genuine_reasoning_pct": 0.0,
+    "categories": {
+      "no_tool": {
+        "count": 9,
+        "mean_score": 1.0,
+        "strict_exact_pct": 100.0,
+        "schema_norm_exact_pct": 100.0
+      },
+      "single_tool": {
+        "count": 36,
+        "mean_score": 3.0028,
+        "strict_exact_pct": 63.89,
+        "schema_norm_exact_pct": 69.44
+      },
+      "multi_tool": {
+        "count": 35,
+        "mean_score": 3.3675,
+        "strict_exact_pct": 74.29,
+        "schema_norm_exact_pct": 74.29
+      }
+    }
+  }
+]

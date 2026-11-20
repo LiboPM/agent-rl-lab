@@ -1,0 +1,53 @@
+### Stage 1 Cold-Start SFT (DeepSeek-R1 / Rejection Sampling Style):
+###   - Uses 320 verified genuine-reasoning trajectories (`rlla_4k_sft_coldstart`)
+###     distilled from Zero-RL Step 120 (`format_reward=1.0`, `exact_match=1.0`,
+###     genuine `<think>...</think>` reasoning instead of RLLA boilerplate).
+###   - Trains for 1.0 Epoch (5 optimization steps at Global Batch Size = 64) so the
+###     model acquires clean formatting + multi-step reasoning while keeping high policy
+###     entropy (`actor/entropy ~ 0.35+`) and leaving >91% of prompts unseen for GRPO.
+
+### model
+model_name_or_path: /home/ma-user/work/LB/github/agent-rl-lab/models/Qwen3-4B-Base-rlla
+trust_remote_code: true
+flash_attn: fa2
+
+### method
+stage: sft
+do_train: true
+finetuning_type: full
+deepspeed: /home/ma-user/work/LB/LlamaFactory/examples/deepspeed/ds_z2_config.json
+
+### dataset
+dataset_dir: /home/ma-user/work/LB/github/agent-rl-lab/data/rlla_4k
+dataset: rlla_4k_sft_coldstart
+eval_dataset: rlla_4k_sft_test
+cutoff_len: 5120
+overwrite_cache: true
+preprocessing_num_workers: 8
+dataloader_num_workers: 4
+
+### output
+output_dir: /home/ma-user/work/LB/github/agent-rl-lab/outputs/sft/sft-coldstart320-Qwen3-4B-Base-rlla-ep1
+logging_steps: 1
+save_strategy: epoch
+plot_loss: true
+overwrite_output_dir: true
+save_only_model: true
+report_to: tensorboard
+
+### train
+per_device_train_batch_size: 2
+gradient_accumulation_steps: 4
+learning_rate: 5.0e-6
+num_train_epochs: 1.0
+lr_scheduler_type: cosine
+warmup_steps: 1
+bf16: true
+gradient_checkpointing: true
+ddp_timeout: 180000000
+enable_thinking: true
+
+### eval
+do_eval: true
+eval_strategy: epoch
+per_device_eval_batch_size: 4

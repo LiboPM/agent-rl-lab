@@ -3,10 +3,10 @@
     "model_tag": "model0_zeroshot_base",
     "model_title": "Model 0: Zero-Shot Base (Qwen3-4B-Base-rlla)",
     "model_path": "models/Qwen3-4B-Base-rlla",
-    "description": "0 步训练（仅剥离未训练特殊 Token，保留 BPE 子词与 <|endoftext|>）",
+    "description": "0-step base model after stripping untrained special tokens",
     "benchmarks": {
       "all_1320": {
-        "title": "全量 6 大测试集总计 (All 6 Test Sets)",
+        "title": "All 6 Multi-Bench Sets (1,320)",
         "count": 1320,
         "total_reward": 1.3401,
         "format_reward": 0.0364,
@@ -20,7 +20,7 @@
         "genuine_cot_pct": 99.39
       },
       "rlla_all": {
-        "title": "1. RLLA-4k 同分布测试集 (In-Domain Total)",
+        "title": "1. RLLA-4k In-Domain (80)",
         "count": 80,
         "total_reward": 0.9708,
         "format_reward": 0.025,
@@ -34,7 +34,7 @@
         "genuine_cot_pct": 93.75
       },
       "rlla_single_tool": {
-        "title": "  ├─ 1a. RLLA 单工具调用 (Single-Tool)",
+        "title": "  ├─ 1a. RLLA Single-Tool (36)",
         "count": 36,
         "total_reward": 1.7097,
         "format_reward": 0.0,
@@ -48,7 +48,7 @@
         "genuine_cot_pct": 100.0
       },
       "rlla_multi_tool": {
-        "title": "  ├─ 1b. RLLA 多工具并发 (Multi-Tool >=2)",
+        "title": "  ├─ 1b. RLLA Multi-Tool (35)",
         "count": 35,
         "total_reward": 0.8318,
         "format_reward": 0.0,
@@ -62,7 +62,7 @@
         "genuine_cot_pct": 97.14
       },
       "rlla_no_tool": {
-        "title": "  └─ 1c. RLLA 缺参追问/拒答 (No-Tool)",
+        "title": "  └─ 1c. RLLA No-Tool Abstention (9)",
         "count": 9,
         "total_reward": -1.4444,
         "format_reward": 0.2222,
@@ -76,7 +76,7 @@
         "genuine_cot_pct": 55.56
       },
       "bfcl_tool_1000": {
-        "title": "2-5. BFCL-v3 工具调用总计 (OOD Tool-Call 4 Sets)",
+        "title": "2-5. BFCL-v3 Standard Tool-Call (1,000)",
         "count": 1000,
         "total_reward": 2.2182,
         "format_reward": 0.0,
@@ -90,7 +90,7 @@
         "genuine_cot_pct": 99.7
       },
       "bfcl_simple": {
-        "title": "  ├─ 2. BFCL-v3 Simple (OOD 单工具调用)",
+        "title": "  ├─ 2. BFCL Simple (400)",
         "count": 400,
         "total_reward": 2.8023,
         "format_reward": 0.0,
@@ -104,7 +104,7 @@
         "genuine_cot_pct": 100.0
       },
       "bfcl_multiple": {
-        "title": "  ├─ 3. BFCL-v3 Multiple (OOD 多候选选一)",
+        "title": "  ├─ 3. BFCL Multiple (200)",
         "count": 200,
         "total_reward": 2.6535,
         "format_reward": 0.0,
@@ -118,7 +118,7 @@
         "genuine_cot_pct": 100.0
       },
       "bfcl_parallel": {
-        "title": "  ├─ 4. BFCL-v3 Parallel (OOD 单工具并发调用)",
+        "title": "  ├─ 4. BFCL Parallel (200)",
         "count": 200,
         "total_reward": 2.2215,
         "format_reward": 0.0,
@@ -132,7 +132,7 @@
         "genuine_cot_pct": 99.5
       },
       "bfcl_parallel_multiple": {
-        "title": "  └─ 5. BFCL-v3 Parallel-Multiple (OOD 多候选+并发)",
+        "title": "  └─ 5. BFCL Parallel-Multiple (200)",
         "count": 200,
         "total_reward": 0.6116,
         "format_reward": 0.0,
@@ -146,7 +146,7 @@
         "genuine_cot_pct": 99.0
       },
       "bfcl_irrelevance": {
-        "title": "6. BFCL-v3 Irrelevance (OOD 无关工具拒答)",
+        "title": "6. BFCL Irrelevance Abstention (240)",
         "count": 240,
         "total_reward": -2.1958,
         "format_reward": 0.1917,
@@ -160,7 +160,7 @@
         "genuine_cot_pct": 100.0
       },
       "bfcl_all": {
-        "title": "2-6. BFCL-v3 分布外全部总计 (OOD All 5 Sets)",
+        "title": "2-6. BFCL-v3 All 5 Sets (1,240)",
         "count": 1240,
         "total_reward": 1.3639,
         "format_reward": 0.0371,
@@ -172,193 +172,427 @@
         "avg_resp_chars": 682.5,
         "avg_think_chars": 290.4,
         "genuine_cot_pct": 99.76
+      },
+      "bfcl_live_all": {
+        "title": "BFCL-v3 Live Total (1,351)",
+        "count": 1351,
+        "total_reward": 2.2644,
+        "format_reward": 0.0,
+        "accuracy_reward": 2.2644,
+        "tool_name_match_pct": 94.41,
+        "strict_exact_match_pct": 57.81,
+        "schema_norm_exact_match_pct": 63.73,
+        "collapsed_pct": 100.0,
+        "avg_resp_chars": 578.7,
+        "avg_think_chars": 250.0,
+        "genuine_cot_pct": 100.0
+      },
+      "bfcl_live_simple": {
+        "title": "  ├─ Live Simple (258)",
+        "count": 258,
+        "total_reward": 2.4373,
+        "format_reward": 0.0,
+        "accuracy_reward": 2.4373,
+        "tool_name_match_pct": 97.75,
+        "strict_exact_match_pct": 66.28,
+        "schema_norm_exact_match_pct": 68.99,
+        "collapsed_pct": 100.0,
+        "avg_resp_chars": 592.4,
+        "avg_think_chars": 264.6,
+        "genuine_cot_pct": 100.0
+      },
+      "bfcl_live_multiple": {
+        "title": "  ├─ Live Multiple (1,053)",
+        "count": 1053,
+        "total_reward": 2.25,
+        "format_reward": 0.0,
+        "accuracy_reward": 2.25,
+        "tool_name_match_pct": 94.17,
+        "strict_exact_match_pct": 56.32,
+        "schema_norm_exact_match_pct": 63.15,
+        "collapsed_pct": 100.0,
+        "avg_resp_chars": 568.1,
+        "avg_think_chars": 244.1,
+        "genuine_cot_pct": 100.0
+      },
+      "bfcl_live_parallel": {
+        "title": "  ├─ Live Parallel (16)",
+        "count": 16,
+        "total_reward": 2.3648,
+        "format_reward": 0.0,
+        "accuracy_reward": 2.3648,
+        "tool_name_match_pct": 91.67,
+        "strict_exact_match_pct": 62.5,
+        "schema_norm_exact_match_pct": 62.5,
+        "collapsed_pct": 100.0,
+        "avg_resp_chars": 777.1,
+        "avg_think_chars": 276.4,
+        "genuine_cot_pct": 100.0
+      },
+      "bfcl_live_parallel_multiple": {
+        "title": "  └─ Live Parallel-Multiple (24)",
+        "count": 24,
+        "total_reward": 0.9698,
+        "format_reward": 0.0,
+        "accuracy_reward": 0.9698,
+        "tool_name_match_pct": 70.97,
+        "strict_exact_match_pct": 29.17,
+        "schema_norm_exact_match_pct": 33.33,
+        "collapsed_pct": 100.0,
+        "avg_resp_chars": 761.7,
+        "avg_think_chars": 337.7,
+        "genuine_cot_pct": 100.0
+      },
+      "indomain_500": {
+        "all_500": {
+          "count": 500,
+          "mean_reward": 1.7163,
+          "format_pct": 0.0,
+          "tool_name_match_pct": 88.01,
+          "strict_em_pct": 52.2,
+          "norm_em_pct": 53.0,
+          "genuine_cot_pct": 99.8
+        },
+        "single_tool_250": {
+          "count": 250,
+          "mean_reward": 2.2793,
+          "format_pct": 0.0,
+          "tool_name_match_pct": 98.4,
+          "strict_em_pct": 62.0,
+          "norm_em_pct": 62.4,
+          "genuine_cot_pct": 100.0
+        },
+        "multi_tool_250": {
+          "count": 250,
+          "mean_reward": 1.1534,
+          "format_pct": 0.0,
+          "tool_name_match_pct": 77.62,
+          "strict_em_pct": 42.4,
+          "norm_em_pct": 43.6,
+          "genuine_cot_pct": 99.6
+        },
+        "toolace_250": {
+          "count": 250,
+          "mean_reward": 1.4837,
+          "format_pct": 0.0,
+          "tool_name_match_pct": 87.09,
+          "strict_em_pct": 43.6,
+          "norm_em_pct": 43.6,
+          "genuine_cot_pct": 99.6
+        },
+        "xlam_250": {
+          "count": 250,
+          "mean_reward": 1.949,
+          "format_pct": 0.0,
+          "tool_name_match_pct": 88.93,
+          "strict_em_pct": 60.8,
+          "norm_em_pct": 62.4,
+          "genuine_cot_pct": 100.0
+        }
       }
     }
   },
   {
-    "model_tag": "model1_pure_rl_step120",
-    "model_title": "Model 1: 纯 RL (Zero-RL GRPO Step 120)",
-    "model_path": "outputs/merged/grpo-rlla4k-Qwen3-4B-Base-rlla-step120",
-    "description": "直接从 Base 跑 120 步 VeRL GRPO（4 Epochs，无任何 SFT）",
+    "model_tag": "model2a_pure_sft_ep1",
+    "model_title": "Model 1a: Pure SFT (1.0 Epoch, Step 62, Min Eval-Loss=0.1582)",
+    "model_path": "outputs/sft/sft-rlla4k-Qwen3-4B-Base-rlla-ep2/checkpoint-62",
+    "description": "Full-data SFT selected at minimum validation loss (Epoch 1.0, checkpoint-62)",
     "benchmarks": {
       "all_1320": {
-        "title": "全量 6 大测试集总计 (All 6 Test Sets)",
+        "title": "All 6 Multi-Bench Sets (1,320)",
         "count": 1320,
-        "total_reward": 2.5643,
-        "format_reward": 0.8553,
-        "accuracy_reward": 1.709,
-        "tool_name_match_pct": 83.26,
-        "strict_exact_match_pct": 67.73,
-        "schema_norm_exact_match_pct": 70.0,
-        "collapsed_pct": 14.92,
-        "avg_resp_chars": 513.6,
-        "avg_think_chars": 273.8,
-        "genuine_cot_pct": 99.85
+        "total_reward": 2.8235,
+        "format_reward": 0.9568,
+        "accuracy_reward": 1.8666,
+        "tool_name_match_pct": 93.52,
+        "strict_exact_match_pct": 63.94,
+        "schema_norm_exact_match_pct": 75.15,
+        "collapsed_pct": 5.0,
+        "avg_resp_chars": 318.0,
+        "avg_think_chars": 80.9,
+        "genuine_cot_pct": 0.0
       },
       "rlla_all": {
-        "title": "1. RLLA-4k 同分布测试集 (In-Domain Total)",
+        "title": "1. RLLA-4k In-Domain (80)",
         "count": 80,
-        "total_reward": 2.5671,
-        "format_reward": 0.975,
-        "accuracy_reward": 1.5921,
-        "tool_name_match_pct": 91.88,
-        "strict_exact_match_pct": 53.75,
-        "schema_norm_exact_match_pct": 60.0,
+        "total_reward": 3.019,
+        "format_reward": 1.0,
+        "accuracy_reward": 2.019,
+        "tool_name_match_pct": 94.79,
+        "strict_exact_match_pct": 73.75,
+        "schema_norm_exact_match_pct": 75.0,
         "collapsed_pct": 3.75,
-        "avg_resp_chars": 574.0,
-        "avg_think_chars": 282.0,
-        "genuine_cot_pct": 97.5
+        "avg_resp_chars": 340.0,
+        "avg_think_chars": 82.3,
+        "genuine_cot_pct": 0.0
       },
       "rlla_single_tool": {
-        "title": "  ├─ 1a. RLLA 单工具调用 (Single-Tool)",
+        "title": "  ├─ 1a. RLLA Single-Tool (36)",
         "count": 36,
-        "total_reward": 2.9306,
+        "total_reward": 3.2833,
         "format_reward": 1.0,
-        "accuracy_reward": 1.9306,
-        "tool_name_match_pct": 93.52,
-        "strict_exact_match_pct": 52.78,
-        "schema_norm_exact_match_pct": 61.11,
-        "collapsed_pct": 0.0,
-        "avg_resp_chars": 395.8,
-        "avg_think_chars": 242.9,
-        "genuine_cot_pct": 100.0
+        "accuracy_reward": 2.2833,
+        "tool_name_match_pct": 97.22,
+        "strict_exact_match_pct": 69.44,
+        "schema_norm_exact_match_pct": 72.22,
+        "collapsed_pct": 2.78,
+        "avg_resp_chars": 225.5,
+        "avg_think_chars": 87.0,
+        "genuine_cot_pct": 0.0
       },
       "rlla_multi_tool": {
-        "title": "  ├─ 1b. RLLA 多工具并发 (Multi-Tool >=2)",
+        "title": "  ├─ 1b. RLLA Multi-Tool (35)",
         "count": 35,
-        "total_reward": 2.8248,
+        "total_reward": 3.2662,
         "format_reward": 1.0,
-        "accuracy_reward": 1.8248,
-        "tool_name_match_pct": 93.81,
-        "strict_exact_match_pct": 48.57,
-        "schema_norm_exact_match_pct": 54.29,
-        "collapsed_pct": 2.86,
-        "avg_resp_chars": 581.0,
-        "avg_think_chars": 337.9,
-        "genuine_cot_pct": 100.0
+        "accuracy_reward": 2.2662,
+        "tool_name_match_pct": 90.95,
+        "strict_exact_match_pct": 71.43,
+        "schema_norm_exact_match_pct": 71.43,
+        "collapsed_pct": 5.71,
+        "avg_resp_chars": 334.8,
+        "avg_think_chars": 87.0,
+        "genuine_cot_pct": 0.0
       },
       "rlla_no_tool": {
-        "title": "  └─ 1c. RLLA 缺参追问/拒答 (No-Tool)",
+        "title": "  └─ 1c. RLLA No-Tool Abstention (9)",
         "count": 9,
-        "total_reward": 0.1111,
-        "format_reward": 0.7778,
-        "accuracy_reward": -0.6667,
-        "tool_name_match_pct": 77.78,
-        "strict_exact_match_pct": 77.78,
-        "schema_norm_exact_match_pct": 77.78,
-        "collapsed_pct": 22.22,
-        "avg_resp_chars": 1259.8,
-        "avg_think_chars": 221.2,
-        "genuine_cot_pct": 77.78
+        "total_reward": 1.0,
+        "format_reward": 1.0,
+        "accuracy_reward": 0.0,
+        "tool_name_match_pct": 100.0,
+        "strict_exact_match_pct": 100.0,
+        "schema_norm_exact_match_pct": 100.0,
+        "collapsed_pct": 0.0,
+        "avg_resp_chars": 818.0,
+        "avg_think_chars": 45.0,
+        "genuine_cot_pct": 0.0
       },
       "bfcl_tool_1000": {
-        "title": "2-5. BFCL-v3 工具调用总计 (OOD Tool-Call 4 Sets)",
+        "title": "2-5. BFCL-v3 Standard Tool-Call (1,000)",
         "count": 1000,
-        "total_reward": 3.6805,
-        "format_reward": 0.997,
-        "accuracy_reward": 2.6835,
-        "tool_name_match_pct": 97.06,
-        "strict_exact_match_pct": 79.7,
-        "schema_norm_exact_match_pct": 82.1,
-        "collapsed_pct": 0.8,
-        "avg_resp_chars": 508.1,
-        "avg_think_chars": 274.6,
-        "genuine_cot_pct": 100.0
+        "total_reward": 3.4705,
+        "format_reward": 1.0,
+        "accuracy_reward": 2.4705,
+        "tool_name_match_pct": 97.47,
+        "strict_exact_match_pct": 60.2,
+        "schema_norm_exact_match_pct": 74.8,
+        "collapsed_pct": 0.6,
+        "avg_resp_chars": 313.6,
+        "avg_think_chars": 87.0,
+        "genuine_cot_pct": 0.0
       },
       "bfcl_simple": {
-        "title": "  ├─ 2. BFCL-v3 Simple (OOD 单工具调用)",
+        "title": "  ├─ 2. BFCL Simple (400)",
         "count": 400,
-        "total_reward": 3.7564,
-        "format_reward": 0.995,
-        "accuracy_reward": 2.7614,
-        "tool_name_match_pct": 98.45,
-        "strict_exact_match_pct": 80.5,
-        "schema_norm_exact_match_pct": 83.25,
-        "collapsed_pct": 0.75,
-        "avg_resp_chars": 387.0,
-        "avg_think_chars": 228.2,
-        "genuine_cot_pct": 100.0
+        "total_reward": 3.5598,
+        "format_reward": 1.0,
+        "accuracy_reward": 2.5598,
+        "tool_name_match_pct": 98.75,
+        "strict_exact_match_pct": 68.5,
+        "schema_norm_exact_match_pct": 80.5,
+        "collapsed_pct": 1.0,
+        "avg_resp_chars": 237.5,
+        "avg_think_chars": 87.0,
+        "genuine_cot_pct": 0.0
       },
       "bfcl_multiple": {
-        "title": "  ├─ 3. BFCL-v3 Multiple (OOD 多候选选一)",
+        "title": "  ├─ 3. BFCL Multiple (200)",
         "count": 200,
-        "total_reward": 3.6765,
+        "total_reward": 3.4811,
         "format_reward": 1.0,
-        "accuracy_reward": 2.6765,
-        "tool_name_match_pct": 96.5,
-        "strict_exact_match_pct": 78.5,
-        "schema_norm_exact_match_pct": 83.5,
-        "collapsed_pct": 0.5,
-        "avg_resp_chars": 391.7,
-        "avg_think_chars": 235.6,
-        "genuine_cot_pct": 100.0
+        "accuracy_reward": 2.4811,
+        "tool_name_match_pct": 98.92,
+        "strict_exact_match_pct": 60.0,
+        "schema_norm_exact_match_pct": 75.0,
+        "collapsed_pct": 0.0,
+        "avg_resp_chars": 238.6,
+        "avg_think_chars": 87.0,
+        "genuine_cot_pct": 0.0
       },
       "bfcl_parallel": {
-        "title": "  ├─ 4. BFCL-v3 Parallel (OOD 单工具并发调用)",
+        "title": "  ├─ 4. BFCL Parallel (200)",
         "count": 200,
-        "total_reward": 3.6469,
+        "total_reward": 3.4258,
         "format_reward": 1.0,
-        "accuracy_reward": 2.6469,
-        "tool_name_match_pct": 96.88,
-        "strict_exact_match_pct": 84.0,
-        "schema_norm_exact_match_pct": 84.5,
-        "collapsed_pct": 0.5,
-        "avg_resp_chars": 627.2,
-        "avg_think_chars": 299.1,
-        "genuine_cot_pct": 100.0
+        "accuracy_reward": 2.4258,
+        "tool_name_match_pct": 96.58,
+        "strict_exact_match_pct": 64.0,
+        "schema_norm_exact_match_pct": 76.0,
+        "collapsed_pct": 0.0,
+        "avg_resp_chars": 408.6,
+        "avg_think_chars": 87.0,
+        "genuine_cot_pct": 0.0
       },
       "bfcl_parallel_multiple": {
-        "title": "  └─ 5. BFCL-v3 Parallel-Multiple (OOD 多候选+并发)",
+        "title": "  └─ 5. BFCL Parallel-Multiple (200)",
         "count": 200,
-        "total_reward": 3.5665,
-        "format_reward": 0.995,
-        "accuracy_reward": 2.5715,
-        "tool_name_match_pct": 95.02,
-        "strict_exact_match_pct": 75.0,
-        "schema_norm_exact_match_pct": 76.0,
-        "collapsed_pct": 1.5,
-        "avg_resp_chars": 747.5,
-        "avg_think_chars": 381.8,
-        "genuine_cot_pct": 100.0
+        "total_reward": 3.3257,
+        "format_reward": 1.0,
+        "accuracy_reward": 2.3257,
+        "tool_name_match_pct": 94.33,
+        "strict_exact_match_pct": 40.0,
+        "schema_norm_exact_match_pct": 62.0,
+        "collapsed_pct": 1.0,
+        "avg_resp_chars": 445.8,
+        "avg_think_chars": 87.0,
+        "genuine_cot_pct": 0.0
       },
       "bfcl_irrelevance": {
-        "title": "6. BFCL-v3 Irrelevance (OOD 无关工具拒答)",
+        "title": "6. BFCL Irrelevance Abstention (240)",
         "count": 240,
-        "total_reward": -2.0875,
-        "format_reward": 0.225,
-        "accuracy_reward": -2.3125,
-        "tool_name_match_pct": 22.92,
-        "strict_exact_match_pct": 22.5,
-        "schema_norm_exact_match_pct": 22.92,
-        "collapsed_pct": 77.5,
-        "avg_resp_chars": 516.5,
-        "avg_think_chars": 268.1,
-        "genuine_cot_pct": 100.0
+        "total_reward": 0.0625,
+        "format_reward": 0.7625,
+        "accuracy_reward": -0.7,
+        "tool_name_match_pct": 76.67,
+        "strict_exact_match_pct": 76.25,
+        "schema_norm_exact_match_pct": 76.67,
+        "collapsed_pct": 23.75,
+        "avg_resp_chars": 328.9,
+        "avg_think_chars": 54.8,
+        "genuine_cot_pct": 0.0
       },
       "bfcl_all": {
-        "title": "2-6. BFCL-v3 分布外全部总计 (OOD All 5 Sets)",
+        "title": "2-6. BFCL-v3 All 5 Sets (1,240)",
         "count": 1240,
-        "total_reward": 2.5641,
-        "format_reward": 0.8476,
-        "accuracy_reward": 1.7166,
-        "tool_name_match_pct": 82.71,
-        "strict_exact_match_pct": 68.63,
-        "schema_norm_exact_match_pct": 70.65,
-        "collapsed_pct": 15.65,
-        "avg_resp_chars": 509.7,
-        "avg_think_chars": 273.3,
-        "genuine_cot_pct": 100.0
+        "total_reward": 2.8109,
+        "format_reward": 0.954,
+        "accuracy_reward": 1.8568,
+        "tool_name_match_pct": 93.44,
+        "strict_exact_match_pct": 63.31,
+        "schema_norm_exact_match_pct": 75.16,
+        "collapsed_pct": 5.08,
+        "avg_resp_chars": 316.6,
+        "avg_think_chars": 80.8,
+        "genuine_cot_pct": 0.0
+      },
+      "bfcl_live_all": {
+        "title": "BFCL-v3 Live Total (1,351)",
+        "count": 1351,
+        "total_reward": 3.3123,
+        "format_reward": 0.9948,
+        "accuracy_reward": 2.3175,
+        "tool_name_match_pct": 95.59,
+        "strict_exact_match_pct": 52.7,
+        "schema_norm_exact_match_pct": 66.17,
+        "collapsed_pct": 1.41,
+        "avg_resp_chars": 253.6,
+        "avg_think_chars": 86.8,
+        "genuine_cot_pct": 0.0
+      },
+      "bfcl_live_simple": {
+        "title": "  ├─ Live Simple (258)",
+        "count": 258,
+        "total_reward": 3.2615,
+        "format_reward": 0.9884,
+        "accuracy_reward": 2.2731,
+        "tool_name_match_pct": 95.44,
+        "strict_exact_match_pct": 62.02,
+        "schema_norm_exact_match_pct": 68.22,
+        "collapsed_pct": 3.49,
+        "avg_resp_chars": 275.5,
+        "avg_think_chars": 86.8,
+        "genuine_cot_pct": 0.0
+      },
+      "bfcl_live_multiple": {
+        "title": "  ├─ Live Multiple (1,053)",
+        "count": 1053,
+        "total_reward": 3.3207,
+        "format_reward": 0.9962,
+        "accuracy_reward": 2.3245,
+        "tool_name_match_pct": 95.57,
+        "strict_exact_match_pct": 50.52,
+        "schema_norm_exact_match_pct": 65.81,
+        "collapsed_pct": 0.95,
+        "avg_resp_chars": 244.2,
+        "avg_think_chars": 86.8,
+        "genuine_cot_pct": 0.0
+      },
+      "bfcl_live_parallel": {
+        "title": "  ├─ Live Parallel (16)",
+        "count": 16,
+        "total_reward": 3.4451,
+        "format_reward": 1.0,
+        "accuracy_reward": 2.4451,
+        "tool_name_match_pct": 100.0,
+        "strict_exact_match_pct": 56.25,
+        "schema_norm_exact_match_pct": 62.5,
+        "collapsed_pct": 0.0,
+        "avg_resp_chars": 395.0,
+        "avg_think_chars": 87.0,
+        "genuine_cot_pct": 0.0
+      },
+      "bfcl_live_parallel_multiple": {
+        "title": "  └─ Live Parallel-Multiple (24)",
+        "count": 24,
+        "total_reward": 3.3996,
+        "format_reward": 1.0,
+        "accuracy_reward": 2.3996,
+        "tool_name_match_pct": 95.42,
+        "strict_exact_match_pct": 45.83,
+        "schema_norm_exact_match_pct": 62.5,
+        "collapsed_pct": 0.0,
+        "avg_resp_chars": 334.0,
+        "avg_think_chars": 87.0,
+        "genuine_cot_pct": 0.0
+      },
+      "indomain_500": {
+        "all_500": {
+          "count": 500,
+          "mean_reward": 3.1096,
+          "format_pct": 99.8,
+          "tool_name_match_pct": 96.05,
+          "strict_em_pct": 64.6,
+          "norm_em_pct": 69.0,
+          "genuine_cot_pct": 0.0
+        },
+        "single_tool_250": {
+          "count": 250,
+          "mean_reward": 3.3123,
+          "format_pct": 99.6,
+          "tool_name_match_pct": 98.8,
+          "strict_em_pct": 71.2,
+          "norm_em_pct": 75.6,
+          "genuine_cot_pct": 0.0
+        },
+        "multi_tool_250": {
+          "count": 250,
+          "mean_reward": 2.9069,
+          "format_pct": 100.0,
+          "tool_name_match_pct": 93.31,
+          "strict_em_pct": 58.0,
+          "norm_em_pct": 62.4,
+          "genuine_cot_pct": 0.0
+        },
+        "toolace_250": {
+          "count": 250,
+          "mean_reward": 2.6104,
+          "format_pct": 99.6,
+          "tool_name_match_pct": 94.77,
+          "strict_em_pct": 47.2,
+          "norm_em_pct": 56.0,
+          "genuine_cot_pct": 0.0
+        },
+        "xlam_250": {
+          "count": 250,
+          "mean_reward": 3.6088,
+          "format_pct": 100.0,
+          "tool_name_match_pct": 97.33,
+          "strict_em_pct": 82.0,
+          "norm_em_pct": 82.0,
+          "genuine_cot_pct": 0.0
+        }
       }
     }
   },
   {
     "model_tag": "model2_pure_sft_ep2",
-    "model_title": "Model 2: 纯 SFT (Full 3,920条 × 2 Epochs)",
+    "model_title": "Model 1b: Pure SFT (2.0 Epochs, Step 124, Min Train-Loss=0.0196)",
     "model_path": "outputs/sft/sft-rlla4k-Qwen3-4B-Base-rlla-ep2",
-    "description": "在 RLLA-4k 全量 3,920 条原数据上跑 2 Epochs LLaMA-Factory 全参 SFT（124 步）",
+    "description": "Full-data SFT trained to convergence of training loss (Epoch 2.0, checkpoint-124)",
     "benchmarks": {
       "all_1320": {
-        "title": "全量 6 大测试集总计 (All 6 Test Sets)",
+        "title": "All 6 Multi-Bench Sets (1,320)",
         "count": 1320,
         "total_reward": 2.8738,
         "format_reward": 0.978,
@@ -372,7 +606,7 @@
         "genuine_cot_pct": 0.0
       },
       "rlla_all": {
-        "title": "1. RLLA-4k 同分布测试集 (In-Domain Total)",
+        "title": "1. RLLA-4k In-Domain (80)",
         "count": 80,
         "total_reward": 2.9558,
         "format_reward": 0.9875,
@@ -386,7 +620,7 @@
         "genuine_cot_pct": 0.0
       },
       "rlla_single_tool": {
-        "title": "  ├─ 1a. RLLA 单工具调用 (Single-Tool)",
+        "title": "  ├─ 1a. RLLA Single-Tool (36)",
         "count": 36,
         "total_reward": 3.0444,
         "format_reward": 0.9722,
@@ -400,7 +634,7 @@
         "genuine_cot_pct": 0.0
       },
       "rlla_multi_tool": {
-        "title": "  ├─ 1b. RLLA 多工具并发 (Multi-Tool >=2)",
+        "title": "  ├─ 1b. RLLA Multi-Tool (35)",
         "count": 35,
         "total_reward": 3.3675,
         "format_reward": 1.0,
@@ -414,7 +648,7 @@
         "genuine_cot_pct": 0.0
       },
       "rlla_no_tool": {
-        "title": "  └─ 1c. RLLA 缺参追问/拒答 (No-Tool)",
+        "title": "  └─ 1c. RLLA No-Tool Abstention (9)",
         "count": 9,
         "total_reward": 1.0,
         "format_reward": 1.0,
@@ -428,7 +662,7 @@
         "genuine_cot_pct": 0.0
       },
       "bfcl_tool_1000": {
-        "title": "2-5. BFCL-v3 工具调用总计 (OOD Tool-Call 4 Sets)",
+        "title": "2-5. BFCL-v3 Standard Tool-Call (1,000)",
         "count": 1000,
         "total_reward": 3.418,
         "format_reward": 0.998,
@@ -442,7 +676,7 @@
         "genuine_cot_pct": 0.0
       },
       "bfcl_simple": {
-        "title": "  ├─ 2. BFCL-v3 Simple (OOD 单工具调用)",
+        "title": "  ├─ 2. BFCL Simple (400)",
         "count": 400,
         "total_reward": 3.4818,
         "format_reward": 0.995,
@@ -456,7 +690,7 @@
         "genuine_cot_pct": 0.0
       },
       "bfcl_multiple": {
-        "title": "  ├─ 3. BFCL-v3 Multiple (OOD 多候选选一)",
+        "title": "  ├─ 3. BFCL Multiple (200)",
         "count": 200,
         "total_reward": 3.4611,
         "format_reward": 1.0,
@@ -470,7 +704,7 @@
         "genuine_cot_pct": 0.0
       },
       "bfcl_parallel": {
-        "title": "  ├─ 4. BFCL-v3 Parallel (OOD 单工具并发调用)",
+        "title": "  ├─ 4. BFCL Parallel (200)",
         "count": 200,
         "total_reward": 3.4246,
         "format_reward": 1.0,
@@ -484,7 +718,7 @@
         "genuine_cot_pct": 0.0
       },
       "bfcl_parallel_multiple": {
-        "title": "  └─ 5. BFCL-v3 Parallel-Multiple (OOD 多候选+并发)",
+        "title": "  └─ 5. BFCL Parallel-Multiple (200)",
         "count": 200,
         "total_reward": 3.2407,
         "format_reward": 1.0,
@@ -498,7 +732,7 @@
         "genuine_cot_pct": 0.0
       },
       "bfcl_irrelevance": {
-        "title": "6. BFCL-v3 Irrelevance (OOD 无关工具拒答)",
+        "title": "6. BFCL Irrelevance Abstention (240)",
         "count": 240,
         "total_reward": 0.5792,
         "format_reward": 0.8917,
@@ -512,7 +746,7 @@
         "genuine_cot_pct": 0.0
       },
       "bfcl_all": {
-        "title": "2-6. BFCL-v3 分布外全部总计 (OOD All 5 Sets)",
+        "title": "2-6. BFCL-v3 All 5 Sets (1,240)",
         "count": 1240,
         "total_reward": 2.8686,
         "format_reward": 0.9774,
@@ -524,17 +758,134 @@
         "avg_resp_chars": 326.8,
         "avg_think_chars": 79.7,
         "genuine_cot_pct": 0.0
+      },
+      "bfcl_live_all": {
+        "title": "BFCL-v3 Live Total (1,351)",
+        "count": 1351,
+        "total_reward": 3.1076,
+        "format_reward": 0.9637,
+        "accuracy_reward": 2.1439,
+        "tool_name_match_pct": 92.86,
+        "strict_exact_match_pct": 49.3,
+        "schema_norm_exact_match_pct": 62.92,
+        "collapsed_pct": 4.44,
+        "avg_resp_chars": 253.5,
+        "avg_think_chars": 85.5,
+        "genuine_cot_pct": 0.0
+      },
+      "bfcl_live_simple": {
+        "title": "  ├─ Live Simple (258)",
+        "count": 258,
+        "total_reward": 3.1394,
+        "format_reward": 0.9806,
+        "accuracy_reward": 2.1588,
+        "tool_name_match_pct": 94.12,
+        "strict_exact_match_pct": 57.75,
+        "schema_norm_exact_match_pct": 62.79,
+        "collapsed_pct": 5.43,
+        "avg_resp_chars": 256.6,
+        "avg_think_chars": 86.2,
+        "genuine_cot_pct": 0.0
+      },
+      "bfcl_live_multiple": {
+        "title": "  ├─ Live Multiple (1,053)",
+        "count": 1053,
+        "total_reward": 3.0881,
+        "format_reward": 0.9582,
+        "accuracy_reward": 2.1299,
+        "tool_name_match_pct": 92.39,
+        "strict_exact_match_pct": 47.2,
+        "schema_norm_exact_match_pct": 62.87,
+        "collapsed_pct": 4.37,
+        "avg_resp_chars": 249.0,
+        "avg_think_chars": 85.2,
+        "genuine_cot_pct": 0.0
+      },
+      "bfcl_live_parallel": {
+        "title": "  ├─ Live Parallel (16)",
+        "count": 16,
+        "total_reward": 3.4016,
+        "format_reward": 1.0,
+        "accuracy_reward": 2.4016,
+        "tool_name_match_pct": 100.0,
+        "strict_exact_match_pct": 56.25,
+        "schema_norm_exact_match_pct": 62.5,
+        "collapsed_pct": 0.0,
+        "avg_resp_chars": 378.2,
+        "avg_think_chars": 87.0,
+        "genuine_cot_pct": 0.0
+      },
+      "bfcl_live_parallel_multiple": {
+        "title": "  └─ Live Parallel-Multiple (24)",
+        "count": 24,
+        "total_reward": 3.4246,
+        "format_reward": 1.0,
+        "accuracy_reward": 2.4246,
+        "tool_name_match_pct": 95.42,
+        "strict_exact_match_pct": 45.83,
+        "schema_norm_exact_match_pct": 66.67,
+        "collapsed_pct": 0.0,
+        "avg_resp_chars": 333.8,
+        "avg_think_chars": 87.0,
+        "genuine_cot_pct": 0.0
+      },
+      "indomain_500": {
+        "all_500": {
+          "count": 500,
+          "mean_reward": 3.1467,
+          "format_pct": 98.8,
+          "tool_name_match_pct": 96.72,
+          "strict_em_pct": 65.6,
+          "norm_em_pct": 69.8,
+          "genuine_cot_pct": 0.0
+        },
+        "single_tool_250": {
+          "count": 250,
+          "mean_reward": 3.3123,
+          "format_pct": 99.2,
+          "tool_name_match_pct": 98.8,
+          "strict_em_pct": 71.6,
+          "norm_em_pct": 76.0,
+          "genuine_cot_pct": 0.0
+        },
+        "multi_tool_250": {
+          "count": 250,
+          "mean_reward": 2.9811,
+          "format_pct": 98.4,
+          "tool_name_match_pct": 94.65,
+          "strict_em_pct": 59.6,
+          "norm_em_pct": 63.6,
+          "genuine_cot_pct": 0.0
+        },
+        "toolace_250": {
+          "count": 250,
+          "mean_reward": 2.6243,
+          "format_pct": 98.4,
+          "tool_name_match_pct": 95.05,
+          "strict_em_pct": 47.6,
+          "norm_em_pct": 56.0,
+          "genuine_cot_pct": 0.0
+        },
+        "xlam_250": {
+          "count": 250,
+          "mean_reward": 3.6692,
+          "format_pct": 99.2,
+          "tool_name_match_pct": 98.4,
+          "strict_em_pct": 83.6,
+          "norm_em_pct": 83.6,
+          "genuine_cot_pct": 0.0
+        }
       }
     }
   },
   {
     "model_tag": "model3_sft_plus_rl_step120",
-    "model_title": "Model 3: 全量 SFT + RL (Full-SFT + GRPO Step 120)",
+    "model_title": "Model 2a: Full-SFT (2.0 Ep) + GRPO (Step 120, Negative Control)",
     "model_path": "outputs/merged/grpo-rlla4k-Qwen3-4B-SFT-ep2-step120",
-    "description": "以 Model 2（2-Epoch 全量 SFT）为起点继续跑 120 步 VeRL GRPO",
+    "description": "GRPO initialized from low-entropy Full-SFT (boilerplate <think>, entropy=0.08)",
     "benchmarks": {
       "all_1320": {
-        "title": "全量 6 大测试集总计 (All 6 Test Sets)",
+        "title": "All 6 Multi-Bench Sets (1,320)",
         "count": 1320,
         "total_reward": 2.8684,
         "format_reward": 0.9765,
@@ -548,7 +899,7 @@
         "genuine_cot_pct": 0.0
       },
       "rlla_all": {
-        "title": "1. RLLA-4k 同分布测试集 (In-Domain Total)",
+        "title": "1. RLLA-4k In-Domain (80)",
         "count": 80,
         "total_reward": 2.937,
         "format_reward": 0.9875,
@@ -562,7 +913,7 @@
         "genuine_cot_pct": 0.0
       },
       "rlla_single_tool": {
-        "title": "  ├─ 1a. RLLA 单工具调用 (Single-Tool)",
+        "title": "  ├─ 1a. RLLA Single-Tool (36)",
         "count": 36,
         "total_reward": 3.0028,
         "format_reward": 0.9722,
@@ -576,7 +927,7 @@
         "genuine_cot_pct": 0.0
       },
       "rlla_multi_tool": {
-        "title": "  ├─ 1b. RLLA 多工具并发 (Multi-Tool >=2)",
+        "title": "  ├─ 1b. RLLA Multi-Tool (35)",
         "count": 35,
         "total_reward": 3.3675,
         "format_reward": 1.0,
@@ -590,7 +941,7 @@
         "genuine_cot_pct": 0.0
       },
       "rlla_no_tool": {
-        "title": "  └─ 1c. RLLA 缺参追问/拒答 (No-Tool)",
+        "title": "  └─ 1c. RLLA No-Tool Abstention (9)",
         "count": 9,
         "total_reward": 1.0,
         "format_reward": 1.0,
@@ -604,7 +955,7 @@
         "genuine_cot_pct": 0.0
       },
       "bfcl_tool_1000": {
-        "title": "2-5. BFCL-v3 工具调用总计 (OOD Tool-Call 4 Sets)",
+        "title": "2-5. BFCL-v3 Standard Tool-Call (1,000)",
         "count": 1000,
         "total_reward": 3.4233,
         "format_reward": 0.998,
@@ -618,7 +969,7 @@
         "genuine_cot_pct": 0.0
       },
       "bfcl_simple": {
-        "title": "  ├─ 2. BFCL-v3 Simple (OOD 单工具调用)",
+        "title": "  ├─ 2. BFCL Simple (400)",
         "count": 400,
         "total_reward": 3.4818,
         "format_reward": 0.995,
@@ -632,7 +983,7 @@
         "genuine_cot_pct": 0.0
       },
       "bfcl_multiple": {
-        "title": "  ├─ 3. BFCL-v3 Multiple (OOD 多候选选一)",
+        "title": "  ├─ 3. BFCL Multiple (200)",
         "count": 200,
         "total_reward": 3.448,
         "format_reward": 1.0,
@@ -646,7 +997,7 @@
         "genuine_cot_pct": 0.0
       },
       "bfcl_parallel": {
-        "title": "  ├─ 4. BFCL-v3 Parallel (OOD 单工具并发调用)",
+        "title": "  ├─ 4. BFCL Parallel (200)",
         "count": 200,
         "total_reward": 3.4117,
         "format_reward": 1.0,
@@ -660,7 +1011,7 @@
         "genuine_cot_pct": 0.0
       },
       "bfcl_parallel_multiple": {
-        "title": "  └─ 5. BFCL-v3 Parallel-Multiple (OOD 多候选+并发)",
+        "title": "  └─ 5. BFCL Parallel-Multiple (200)",
         "count": 200,
         "total_reward": 3.2931,
         "format_reward": 1.0,
@@ -674,7 +1025,7 @@
         "genuine_cot_pct": 0.0
       },
       "bfcl_irrelevance": {
-        "title": "6. BFCL-v3 Irrelevance (OOD 无关工具拒答)",
+        "title": "6. BFCL Irrelevance Abstention (240)",
         "count": 240,
         "total_reward": 0.5333,
         "format_reward": 0.8833,
@@ -688,7 +1039,7 @@
         "genuine_cot_pct": 0.0
       },
       "bfcl_all": {
-        "title": "2-6. BFCL-v3 分布外全部总计 (OOD All 5 Sets)",
+        "title": "2-6. BFCL-v3 All 5 Sets (1,240)",
         "count": 1240,
         "total_reward": 2.8639,
         "format_reward": 0.9758,
@@ -700,17 +1051,134 @@
         "avg_resp_chars": 323.9,
         "avg_think_chars": 79.8,
         "genuine_cot_pct": 0.0
+      },
+      "bfcl_live_all": {
+        "title": "BFCL-v3 Live Total (1,351)",
+        "count": 1351,
+        "total_reward": 3.156,
+        "format_reward": 0.9719,
+        "accuracy_reward": 2.1841,
+        "tool_name_match_pct": 93.61,
+        "strict_exact_match_pct": 49.3,
+        "schema_norm_exact_match_pct": 63.06,
+        "collapsed_pct": 3.77,
+        "avg_resp_chars": 253.5,
+        "avg_think_chars": 85.8,
+        "genuine_cot_pct": 0.0
+      },
+      "bfcl_live_simple": {
+        "title": "  ├─ Live Simple (258)",
+        "count": 258,
+        "total_reward": 3.1262,
+        "format_reward": 0.9806,
+        "accuracy_reward": 2.1456,
+        "tool_name_match_pct": 93.6,
+        "strict_exact_match_pct": 57.75,
+        "schema_norm_exact_match_pct": 63.18,
+        "collapsed_pct": 6.2,
+        "avg_resp_chars": 257.9,
+        "avg_think_chars": 86.2,
+        "genuine_cot_pct": 0.0
+      },
+      "bfcl_live_multiple": {
+        "title": "  ├─ Live Multiple (1,053)",
+        "count": 1053,
+        "total_reward": 3.1526,
+        "format_reward": 0.9687,
+        "accuracy_reward": 2.1839,
+        "tool_name_match_pct": 93.48,
+        "strict_exact_match_pct": 47.2,
+        "schema_norm_exact_match_pct": 62.87,
+        "collapsed_pct": 3.32,
+        "avg_resp_chars": 248.6,
+        "avg_think_chars": 85.7,
+        "genuine_cot_pct": 0.0
+      },
+      "bfcl_live_parallel": {
+        "title": "  ├─ Live Parallel (16)",
+        "count": 16,
+        "total_reward": 3.4551,
+        "format_reward": 1.0,
+        "accuracy_reward": 2.4551,
+        "tool_name_match_pct": 100.0,
+        "strict_exact_match_pct": 62.5,
+        "schema_norm_exact_match_pct": 68.75,
+        "collapsed_pct": 0.0,
+        "avg_resp_chars": 384.9,
+        "avg_think_chars": 87.0,
+        "genuine_cot_pct": 0.0
+      },
+      "bfcl_live_parallel_multiple": {
+        "title": "  └─ Live Parallel-Multiple (24)",
+        "count": 24,
+        "total_reward": 3.4246,
+        "format_reward": 1.0,
+        "accuracy_reward": 2.4246,
+        "tool_name_match_pct": 95.42,
+        "strict_exact_match_pct": 41.67,
+        "schema_norm_exact_match_pct": 66.67,
+        "collapsed_pct": 0.0,
+        "avg_resp_chars": 333.9,
+        "avg_think_chars": 87.0,
+        "genuine_cot_pct": 0.0
+      },
+      "indomain_500": {
+        "all_500": {
+          "count": 500,
+          "mean_reward": 3.1431,
+          "format_pct": 98.8,
+          "tool_name_match_pct": 96.69,
+          "strict_em_pct": 65.2,
+          "norm_em_pct": 69.6,
+          "genuine_cot_pct": 0.0
+        },
+        "single_tool_250": {
+          "count": 250,
+          "mean_reward": 3.3123,
+          "format_pct": 99.2,
+          "tool_name_match_pct": 98.8,
+          "strict_em_pct": 71.6,
+          "norm_em_pct": 76.0,
+          "genuine_cot_pct": 0.0
+        },
+        "multi_tool_250": {
+          "count": 250,
+          "mean_reward": 2.9738,
+          "format_pct": 98.4,
+          "tool_name_match_pct": 94.58,
+          "strict_em_pct": 58.8,
+          "norm_em_pct": 63.2,
+          "genuine_cot_pct": 0.0
+        },
+        "toolace_250": {
+          "count": 250,
+          "mean_reward": 2.641,
+          "format_pct": 98.8,
+          "tool_name_match_pct": 95.38,
+          "strict_em_pct": 47.2,
+          "norm_em_pct": 56.0,
+          "genuine_cot_pct": 0.0
+        },
+        "xlam_250": {
+          "count": 250,
+          "mean_reward": 3.6452,
+          "format_pct": 98.8,
+          "tool_name_match_pct": 98.0,
+          "strict_em_pct": 83.2,
+          "norm_em_pct": 83.2,
+          "genuine_cot_pct": 0.0
+        }
       }
     }
   },
   {
     "model_tag": "model4_coldstart_sft320_ep1",
-    "model_title": "Model 4: 微缩冷启动 SFT (Cold-Start 320条 × 1 Epoch)",
+    "model_title": "Model 2b: Cold-Start SFT (320 Genuine-CoT, 1.0 Ep, 5 Steps)",
     "model_path": "outputs/sft/sft-coldstart320-Qwen3-4B-Base-rlla-ep1",
-    "description": "用 Model 1 拒绝采样蒸馏的 320 条真推理样本跑 1 Epoch SFT（仅 5 步更新）",
+    "description": "Lightweight format & genuine-CoT warm-up (320 rejection-sampled trajectories, 5 steps)",
     "benchmarks": {
       "all_1320": {
-        "title": "全量 6 大测试集总计 (All 6 Test Sets)",
+        "title": "All 6 Multi-Bench Sets (1,320)",
         "count": 1320,
         "total_reward": 2.4577,
         "format_reward": 0.8371,
@@ -724,7 +1192,7 @@
         "genuine_cot_pct": 99.55
       },
       "rlla_all": {
-        "title": "1. RLLA-4k 同分布测试集 (In-Domain Total)",
+        "title": "1. RLLA-4k In-Domain (80)",
         "count": 80,
         "total_reward": 2.3774,
         "format_reward": 0.9375,
@@ -738,7 +1206,7 @@
         "genuine_cot_pct": 95.0
       },
       "rlla_single_tool": {
-        "title": "  ├─ 1a. RLLA 单工具调用 (Single-Tool)",
+        "title": "  ├─ 1a. RLLA Single-Tool (36)",
         "count": 36,
         "total_reward": 2.8736,
         "format_reward": 1.0,
@@ -752,7 +1220,7 @@
         "genuine_cot_pct": 100.0
       },
       "rlla_multi_tool": {
-        "title": "  ├─ 1b. RLLA 多工具并发 (Multi-Tool >=2)",
+        "title": "  ├─ 1b. RLLA Multi-Tool (35)",
         "count": 35,
         "total_reward": 2.6212,
         "format_reward": 1.0,
@@ -766,7 +1234,7 @@
         "genuine_cot_pct": 100.0
       },
       "rlla_no_tool": {
-        "title": "  └─ 1c. RLLA 缺参追问/拒答 (No-Tool)",
+        "title": "  └─ 1c. RLLA No-Tool Abstention (9)",
         "count": 9,
         "total_reward": -0.5556,
         "format_reward": 0.4444,
@@ -780,7 +1248,7 @@
         "genuine_cot_pct": 55.56
       },
       "bfcl_tool_1000": {
-        "title": "2-5. BFCL-v3 工具调用总计 (OOD Tool-Call 4 Sets)",
+        "title": "2-5. BFCL-v3 Standard Tool-Call (1,000)",
         "count": 1000,
         "total_reward": 3.6089,
         "format_reward": 0.991,
@@ -794,7 +1262,7 @@
         "genuine_cot_pct": 99.8
       },
       "bfcl_simple": {
-        "title": "  ├─ 2. BFCL-v3 Simple (OOD 单工具调用)",
+        "title": "  ├─ 2. BFCL Simple (400)",
         "count": 400,
         "total_reward": 3.7877,
         "format_reward": 0.9975,
@@ -808,7 +1276,7 @@
         "genuine_cot_pct": 100.0
       },
       "bfcl_multiple": {
-        "title": "  ├─ 3. BFCL-v3 Multiple (OOD 多候选选一)",
+        "title": "  ├─ 3. BFCL Multiple (200)",
         "count": 200,
         "total_reward": 3.722,
         "format_reward": 1.0,
@@ -822,7 +1290,7 @@
         "genuine_cot_pct": 100.0
       },
       "bfcl_parallel": {
-        "title": "  ├─ 4. BFCL-v3 Parallel (OOD 单工具并发调用)",
+        "title": "  ├─ 4. BFCL Parallel (200)",
         "count": 200,
         "total_reward": 3.5446,
         "format_reward": 1.0,
@@ -836,7 +1304,7 @@
         "genuine_cot_pct": 100.0
       },
       "bfcl_parallel_multiple": {
-        "title": "  └─ 5. BFCL-v3 Parallel-Multiple (OOD 多候选+并发)",
+        "title": "  └─ 5. BFCL Parallel-Multiple (200)",
         "count": 200,
         "total_reward": 3.2026,
         "format_reward": 0.96,
@@ -850,7 +1318,7 @@
         "genuine_cot_pct": 99.0
       },
       "bfcl_irrelevance": {
-        "title": "6. BFCL-v3 Irrelevance (OOD 无关工具拒答)",
+        "title": "6. BFCL Irrelevance Abstention (240)",
         "count": 240,
         "total_reward": -2.3125,
         "format_reward": 0.1625,
@@ -864,7 +1332,7 @@
         "genuine_cot_pct": 100.0
       },
       "bfcl_all": {
-        "title": "2-6. BFCL-v3 分布外全部总计 (OOD All 5 Sets)",
+        "title": "2-6. BFCL-v3 All 5 Sets (1,240)",
         "count": 1240,
         "total_reward": 2.4628,
         "format_reward": 0.8306,
@@ -876,6 +1344,1002 @@
         "avg_resp_chars": 468.6,
         "avg_think_chars": 239.9,
         "genuine_cot_pct": 99.84
+      },
+      "bfcl_live_all": {
+        "title": "BFCL-v3 Live Total (1,351)",
+        "count": 1351,
+        "total_reward": 3.3118,
+        "format_reward": 0.9993,
+        "accuracy_reward": 2.3126,
+        "tool_name_match_pct": 94.81,
+        "strict_exact_match_pct": 58.92,
+        "schema_norm_exact_match_pct": 64.99,
+        "collapsed_pct": 0.15,
+        "avg_resp_chars": 372.3,
+        "avg_think_chars": 197.0,
+        "genuine_cot_pct": 100.0
+      },
+      "bfcl_live_simple": {
+        "title": "  ├─ Live Simple (258)",
+        "count": 258,
+        "total_reward": 3.4784,
+        "format_reward": 0.9961,
+        "accuracy_reward": 2.4823,
+        "tool_name_match_pct": 98.22,
+        "strict_exact_match_pct": 63.95,
+        "schema_norm_exact_match_pct": 65.89,
+        "collapsed_pct": 0.78,
+        "avg_resp_chars": 393.7,
+        "avg_think_chars": 211.7,
+        "genuine_cot_pct": 100.0
+      },
+      "bfcl_live_multiple": {
+        "title": "  ├─ Live Multiple (1,053)",
+        "count": 1053,
+        "total_reward": 3.2836,
+        "format_reward": 1.0,
+        "accuracy_reward": 2.2836,
+        "tool_name_match_pct": 94.2,
+        "strict_exact_match_pct": 58.12,
+        "schema_norm_exact_match_pct": 65.34,
+        "collapsed_pct": 0.0,
+        "avg_resp_chars": 361.8,
+        "avg_think_chars": 191.8,
+        "genuine_cot_pct": 100.0
+      },
+      "bfcl_live_parallel": {
+        "title": "  ├─ Live Parallel (16)",
+        "count": 16,
+        "total_reward": 3.4536,
+        "format_reward": 1.0,
+        "accuracy_reward": 2.4536,
+        "tool_name_match_pct": 96.88,
+        "strict_exact_match_pct": 56.25,
+        "schema_norm_exact_match_pct": 56.25,
+        "collapsed_pct": 0.0,
+        "avg_resp_chars": 530.9,
+        "avg_think_chars": 216.4,
+        "genuine_cot_pct": 100.0
+      },
+      "bfcl_live_parallel_multiple": {
+        "title": "  └─ Live Parallel-Multiple (24)",
+        "count": 24,
+        "total_reward": 2.6633,
+        "format_reward": 1.0,
+        "accuracy_reward": 1.6633,
+        "tool_name_match_pct": 83.47,
+        "strict_exact_match_pct": 41.67,
+        "schema_norm_exact_match_pct": 45.83,
+        "collapsed_pct": 0.0,
+        "avg_resp_chars": 496.9,
+        "avg_think_chars": 251.3,
+        "genuine_cot_pct": 100.0
+      },
+      "indomain_500": {
+        "all_500": {
+          "count": 500,
+          "mean_reward": 3.0547,
+          "format_pct": 99.4,
+          "tool_name_match_pct": 93.01,
+          "strict_em_pct": 60.0,
+          "norm_em_pct": 60.4,
+          "genuine_cot_pct": 100.0
+        },
+        "single_tool_250": {
+          "count": 250,
+          "mean_reward": 3.3514,
+          "format_pct": 99.6,
+          "tool_name_match_pct": 97.73,
+          "strict_em_pct": 66.4,
+          "norm_em_pct": 66.4,
+          "genuine_cot_pct": 100.0
+        },
+        "multi_tool_250": {
+          "count": 250,
+          "mean_reward": 2.758,
+          "format_pct": 99.2,
+          "tool_name_match_pct": 88.29,
+          "strict_em_pct": 53.6,
+          "norm_em_pct": 54.4,
+          "genuine_cot_pct": 100.0
+        },
+        "toolace_250": {
+          "count": 250,
+          "mean_reward": 2.8903,
+          "format_pct": 99.6,
+          "tool_name_match_pct": 93.04,
+          "strict_em_pct": 50.4,
+          "norm_em_pct": 50.4,
+          "genuine_cot_pct": 100.0
+        },
+        "xlam_250": {
+          "count": 250,
+          "mean_reward": 3.2191,
+          "format_pct": 99.2,
+          "tool_name_match_pct": 92.98,
+          "strict_em_pct": 69.6,
+          "norm_em_pct": 70.4,
+          "genuine_cot_pct": 100.0
+        }
+      }
+    }
+  },
+  {
+    "model_tag": "model6_coldstart_sft_plus_rl_step100",
+    "model_title": "Model 2c: Cold-Start SFT (320) + GRPO (Step 100, Positive Control)",
+    "model_path": "outputs/merged/grpo-rlla4k-v2reward-ColdStartSFT320-step100",
+    "description": "GRPO (v2 reward) initialized from entropy-preserving Cold-Start SFT (selected at val_reward peak Step 100)",
+    "benchmarks": {
+      "all_1320": {
+        "title": "All 6 Multi-Bench Sets (1,320)",
+        "count": 1320,
+        "total_reward": 2.5378,
+        "format_reward": 0.8439,
+        "accuracy_reward": 1.6939,
+        "tool_name_match_pct": 82.39,
+        "strict_exact_match_pct": 67.42,
+        "schema_norm_exact_match_pct": 69.32,
+        "collapsed_pct": 16.06,
+        "avg_resp_chars": 471.9,
+        "avg_think_chars": 242.4,
+        "genuine_cot_pct": 99.77
+      },
+      "rlla_all": {
+        "title": "1. RLLA-4k In-Domain (80)",
+        "count": 80,
+        "total_reward": 2.4733,
+        "format_reward": 0.95,
+        "accuracy_reward": 1.5233,
+        "tool_name_match_pct": 89.79,
+        "strict_exact_match_pct": 50.0,
+        "schema_norm_exact_match_pct": 57.5,
+        "collapsed_pct": 7.5,
+        "avg_resp_chars": 530.3,
+        "avg_think_chars": 261.2,
+        "genuine_cot_pct": 96.25
+      },
+      "rlla_single_tool": {
+        "title": "  ├─ 1a. RLLA Single-Tool (36)",
+        "count": 36,
+        "total_reward": 2.8611,
+        "format_reward": 1.0,
+        "accuracy_reward": 1.8611,
+        "tool_name_match_pct": 93.06,
+        "strict_exact_match_pct": 50.0,
+        "schema_norm_exact_match_pct": 58.33,
+        "collapsed_pct": 0.0,
+        "avg_resp_chars": 364.6,
+        "avg_think_chars": 217.4,
+        "genuine_cot_pct": 100.0
+      },
+      "rlla_multi_tool": {
+        "title": "  ├─ 1b. RLLA Multi-Tool (35)",
+        "count": 35,
+        "total_reward": 2.8247,
+        "format_reward": 1.0,
+        "accuracy_reward": 1.8247,
+        "tool_name_match_pct": 92.38,
+        "strict_exact_match_pct": 48.57,
+        "schema_norm_exact_match_pct": 57.14,
+        "collapsed_pct": 5.71,
+        "avg_resp_chars": 577.4,
+        "avg_think_chars": 329.4,
+        "genuine_cot_pct": 100.0
+      },
+      "rlla_no_tool": {
+        "title": "  └─ 1c. RLLA No-Tool Abstention (9)",
+        "count": 9,
+        "total_reward": -0.4444,
+        "format_reward": 0.5556,
+        "accuracy_reward": -1.0,
+        "tool_name_match_pct": 66.67,
+        "strict_exact_match_pct": 55.56,
+        "schema_norm_exact_match_pct": 55.56,
+        "collapsed_pct": 44.44,
+        "avg_resp_chars": 1009.9,
+        "avg_think_chars": 170.8,
+        "genuine_cot_pct": 66.67
+      },
+      "bfcl_tool_1000": {
+        "title": "2-5. BFCL-v3 Standard Tool-Call (1,000)",
+        "count": 1000,
+        "total_reward": 3.7171,
+        "format_reward": 1.0,
+        "accuracy_reward": 2.7171,
+        "tool_name_match_pct": 97.67,
+        "strict_exact_match_pct": 81.2,
+        "schema_norm_exact_match_pct": 83.0,
+        "collapsed_pct": 0.4,
+        "avg_resp_chars": 484.0,
+        "avg_think_chars": 251.4,
+        "genuine_cot_pct": 100.0
+      },
+      "bfcl_simple": {
+        "title": "  ├─ 2. BFCL Simple (400)",
+        "count": 400,
+        "total_reward": 3.7954,
+        "format_reward": 1.0,
+        "accuracy_reward": 2.7954,
+        "tool_name_match_pct": 99.16,
+        "strict_exact_match_pct": 82.0,
+        "schema_norm_exact_match_pct": 84.5,
+        "collapsed_pct": 0.25,
+        "avg_resp_chars": 356.1,
+        "avg_think_chars": 199.2,
+        "genuine_cot_pct": 100.0
+      },
+      "bfcl_multiple": {
+        "title": "  ├─ 3. BFCL Multiple (200)",
+        "count": 200,
+        "total_reward": 3.7395,
+        "format_reward": 1.0,
+        "accuracy_reward": 2.7395,
+        "tool_name_match_pct": 97.75,
+        "strict_exact_match_pct": 82.5,
+        "schema_norm_exact_match_pct": 85.5,
+        "collapsed_pct": 0.5,
+        "avg_resp_chars": 350.2,
+        "avg_think_chars": 195.1,
+        "genuine_cot_pct": 100.0
+      },
+      "bfcl_parallel": {
+        "title": "  ├─ 4. BFCL Parallel (200)",
+        "count": 200,
+        "total_reward": 3.606,
+        "format_reward": 1.0,
+        "accuracy_reward": 2.606,
+        "tool_name_match_pct": 95.92,
+        "strict_exact_match_pct": 82.0,
+        "schema_norm_exact_match_pct": 82.5,
+        "collapsed_pct": 0.5,
+        "avg_resp_chars": 593.0,
+        "avg_think_chars": 266.5,
+        "genuine_cot_pct": 100.0
+      },
+      "bfcl_parallel_multiple": {
+        "title": "  └─ 5. BFCL Parallel-Multiple (200)",
+        "count": 200,
+        "total_reward": 3.6492,
+        "format_reward": 1.0,
+        "accuracy_reward": 2.6492,
+        "tool_name_match_pct": 96.35,
+        "strict_exact_match_pct": 77.5,
+        "schema_norm_exact_match_pct": 78.0,
+        "collapsed_pct": 0.5,
+        "avg_resp_chars": 764.6,
+        "avg_think_chars": 396.9,
+        "genuine_cot_pct": 100.0
+      },
+      "bfcl_irrelevance": {
+        "title": "6. BFCL Irrelevance Abstention (240)",
+        "count": 240,
+        "total_reward": -2.3542,
+        "format_reward": 0.1583,
+        "accuracy_reward": -2.5125,
+        "tool_name_match_pct": 16.25,
+        "strict_exact_match_pct": 15.83,
+        "schema_norm_exact_match_pct": 16.25,
+        "collapsed_pct": 84.17,
+        "avg_resp_chars": 401.7,
+        "avg_think_chars": 198.5,
+        "genuine_cot_pct": 100.0
+      },
+      "bfcl_all": {
+        "title": "2-6. BFCL-v3 All 5 Sets (1,240)",
+        "count": 1240,
+        "total_reward": 2.542,
+        "format_reward": 0.8371,
+        "accuracy_reward": 1.7049,
+        "tool_name_match_pct": 81.91,
+        "strict_exact_match_pct": 68.55,
+        "schema_norm_exact_match_pct": 70.08,
+        "collapsed_pct": 16.61,
+        "avg_resp_chars": 468.1,
+        "avg_think_chars": 241.2,
+        "genuine_cot_pct": 100.0
+      },
+      "bfcl_live_all": {
+        "title": "BFCL-v3 Live Total (1,351)",
+        "count": 1351,
+        "total_reward": 3.3355,
+        "format_reward": 0.9993,
+        "accuracy_reward": 2.3363,
+        "tool_name_match_pct": 95.26,
+        "strict_exact_match_pct": 58.99,
+        "schema_norm_exact_match_pct": 65.21,
+        "collapsed_pct": 0.07,
+        "avg_resp_chars": 370.2,
+        "avg_think_chars": 196.6,
+        "genuine_cot_pct": 100.0
+      },
+      "bfcl_live_simple": {
+        "title": "  ├─ Live Simple (258)",
+        "count": 258,
+        "total_reward": 3.4483,
+        "format_reward": 0.9961,
+        "accuracy_reward": 2.4522,
+        "tool_name_match_pct": 98.42,
+        "strict_exact_match_pct": 63.18,
+        "schema_norm_exact_match_pct": 65.12,
+        "collapsed_pct": 0.39,
+        "avg_resp_chars": 394.3,
+        "avg_think_chars": 213.4,
+        "genuine_cot_pct": 100.0
+      },
+      "bfcl_live_multiple": {
+        "title": "  ├─ Live Multiple (1,053)",
+        "count": 1053,
+        "total_reward": 3.3064,
+        "format_reward": 1.0,
+        "accuracy_reward": 2.3064,
+        "tool_name_match_pct": 94.5,
+        "strict_exact_match_pct": 58.02,
+        "schema_norm_exact_match_pct": 65.34,
+        "collapsed_pct": 0.0,
+        "avg_resp_chars": 358.2,
+        "avg_think_chars": 190.7,
+        "genuine_cot_pct": 100.0
+      },
+      "bfcl_live_parallel": {
+        "title": "  ├─ Live Parallel (16)",
+        "count": 16,
+        "total_reward": 3.4657,
+        "format_reward": 1.0,
+        "accuracy_reward": 2.4657,
+        "tool_name_match_pct": 96.88,
+        "strict_exact_match_pct": 62.5,
+        "schema_norm_exact_match_pct": 62.5,
+        "collapsed_pct": 0.0,
+        "avg_resp_chars": 500.3,
+        "avg_think_chars": 204.2,
+        "genuine_cot_pct": 100.0
+      },
+      "bfcl_live_parallel_multiple": {
+        "title": "  └─ Live Parallel-Multiple (24)",
+        "count": 24,
+        "total_reward": 3.314,
+        "format_reward": 1.0,
+        "accuracy_reward": 2.314,
+        "tool_name_match_pct": 93.75,
+        "strict_exact_match_pct": 54.17,
+        "schema_norm_exact_match_pct": 62.5,
+        "collapsed_pct": 0.0,
+        "avg_resp_chars": 548.9,
+        "avg_think_chars": 268.6,
+        "genuine_cot_pct": 100.0
+      },
+      "indomain_500": {
+        "all_500": {
+          "count": 500,
+          "mean_reward": 3.1587,
+          "format_pct": 99.8,
+          "tool_name_match_pct": 94.25,
+          "strict_em_pct": 62.6,
+          "norm_em_pct": 63.0,
+          "genuine_cot_pct": 100.0
+        },
+        "single_tool_250": {
+          "count": 250,
+          "mean_reward": 3.4116,
+          "format_pct": 99.6,
+          "tool_name_match_pct": 97.93,
+          "strict_em_pct": 69.2,
+          "norm_em_pct": 69.2,
+          "genuine_cot_pct": 100.0
+        },
+        "multi_tool_250": {
+          "count": 250,
+          "mean_reward": 2.9058,
+          "format_pct": 100.0,
+          "tool_name_match_pct": 90.57,
+          "strict_em_pct": 56.0,
+          "norm_em_pct": 56.8,
+          "genuine_cot_pct": 100.0
+        },
+        "toolace_250": {
+          "count": 250,
+          "mean_reward": 3.0279,
+          "format_pct": 100.0,
+          "tool_name_match_pct": 94.63,
+          "strict_em_pct": 53.2,
+          "norm_em_pct": 53.2,
+          "genuine_cot_pct": 100.0
+        },
+        "xlam_250": {
+          "count": 250,
+          "mean_reward": 3.2896,
+          "format_pct": 99.6,
+          "tool_name_match_pct": 93.88,
+          "strict_em_pct": 72.0,
+          "norm_em_pct": 72.8,
+          "genuine_cot_pct": 100.0
+        }
+      }
+    }
+  },
+  {
+    "model_tag": "model1_pure_rl_step120",
+    "model_title": "Model 3a: Pure RL (Zero-RL GRPO, 4.0 Ep / Step 120, v1 Reward)",
+    "model_path": "outputs/merged/grpo-rlla4k-Qwen3-4B-Base-rlla-step120",
+    "description": "Direct GRPO from Base model with v1 reward (selected at val_reward peak Step 120)",
+    "benchmarks": {
+      "all_1320": {
+        "title": "All 6 Multi-Bench Sets (1,320)",
+        "count": 1320,
+        "total_reward": 2.5643,
+        "format_reward": 0.8553,
+        "accuracy_reward": 1.709,
+        "tool_name_match_pct": 83.26,
+        "strict_exact_match_pct": 67.73,
+        "schema_norm_exact_match_pct": 70.0,
+        "collapsed_pct": 14.92,
+        "avg_resp_chars": 513.6,
+        "avg_think_chars": 273.8,
+        "genuine_cot_pct": 99.85
+      },
+      "rlla_all": {
+        "title": "1. RLLA-4k In-Domain (80)",
+        "count": 80,
+        "total_reward": 2.5671,
+        "format_reward": 0.975,
+        "accuracy_reward": 1.5921,
+        "tool_name_match_pct": 91.88,
+        "strict_exact_match_pct": 53.75,
+        "schema_norm_exact_match_pct": 60.0,
+        "collapsed_pct": 3.75,
+        "avg_resp_chars": 574.0,
+        "avg_think_chars": 282.0,
+        "genuine_cot_pct": 97.5
+      },
+      "rlla_single_tool": {
+        "title": "  ├─ 1a. RLLA Single-Tool (36)",
+        "count": 36,
+        "total_reward": 2.9306,
+        "format_reward": 1.0,
+        "accuracy_reward": 1.9306,
+        "tool_name_match_pct": 93.52,
+        "strict_exact_match_pct": 52.78,
+        "schema_norm_exact_match_pct": 61.11,
+        "collapsed_pct": 0.0,
+        "avg_resp_chars": 395.8,
+        "avg_think_chars": 242.9,
+        "genuine_cot_pct": 100.0
+      },
+      "rlla_multi_tool": {
+        "title": "  ├─ 1b. RLLA Multi-Tool (35)",
+        "count": 35,
+        "total_reward": 2.8248,
+        "format_reward": 1.0,
+        "accuracy_reward": 1.8248,
+        "tool_name_match_pct": 93.81,
+        "strict_exact_match_pct": 48.57,
+        "schema_norm_exact_match_pct": 54.29,
+        "collapsed_pct": 2.86,
+        "avg_resp_chars": 581.0,
+        "avg_think_chars": 337.9,
+        "genuine_cot_pct": 100.0
+      },
+      "rlla_no_tool": {
+        "title": "  └─ 1c. RLLA No-Tool Abstention (9)",
+        "count": 9,
+        "total_reward": 0.1111,
+        "format_reward": 0.7778,
+        "accuracy_reward": -0.6667,
+        "tool_name_match_pct": 77.78,
+        "strict_exact_match_pct": 77.78,
+        "schema_norm_exact_match_pct": 77.78,
+        "collapsed_pct": 22.22,
+        "avg_resp_chars": 1259.8,
+        "avg_think_chars": 221.2,
+        "genuine_cot_pct": 77.78
+      },
+      "bfcl_tool_1000": {
+        "title": "2-5. BFCL-v3 Standard Tool-Call (1,000)",
+        "count": 1000,
+        "total_reward": 3.6805,
+        "format_reward": 0.997,
+        "accuracy_reward": 2.6835,
+        "tool_name_match_pct": 97.06,
+        "strict_exact_match_pct": 79.7,
+        "schema_norm_exact_match_pct": 82.1,
+        "collapsed_pct": 0.8,
+        "avg_resp_chars": 508.1,
+        "avg_think_chars": 274.6,
+        "genuine_cot_pct": 100.0
+      },
+      "bfcl_simple": {
+        "title": "  ├─ 2. BFCL Simple (400)",
+        "count": 400,
+        "total_reward": 3.7564,
+        "format_reward": 0.995,
+        "accuracy_reward": 2.7614,
+        "tool_name_match_pct": 98.45,
+        "strict_exact_match_pct": 80.5,
+        "schema_norm_exact_match_pct": 83.25,
+        "collapsed_pct": 0.75,
+        "avg_resp_chars": 387.0,
+        "avg_think_chars": 228.2,
+        "genuine_cot_pct": 100.0
+      },
+      "bfcl_multiple": {
+        "title": "  ├─ 3. BFCL Multiple (200)",
+        "count": 200,
+        "total_reward": 3.6765,
+        "format_reward": 1.0,
+        "accuracy_reward": 2.6765,
+        "tool_name_match_pct": 96.5,
+        "strict_exact_match_pct": 78.5,
+        "schema_norm_exact_match_pct": 83.5,
+        "collapsed_pct": 0.5,
+        "avg_resp_chars": 391.7,
+        "avg_think_chars": 235.6,
+        "genuine_cot_pct": 100.0
+      },
+      "bfcl_parallel": {
+        "title": "  ├─ 4. BFCL Parallel (200)",
+        "count": 200,
+        "total_reward": 3.6469,
+        "format_reward": 1.0,
+        "accuracy_reward": 2.6469,
+        "tool_name_match_pct": 96.88,
+        "strict_exact_match_pct": 84.0,
+        "schema_norm_exact_match_pct": 84.5,
+        "collapsed_pct": 0.5,
+        "avg_resp_chars": 627.2,
+        "avg_think_chars": 299.1,
+        "genuine_cot_pct": 100.0
+      },
+      "bfcl_parallel_multiple": {
+        "title": "  └─ 5. BFCL Parallel-Multiple (200)",
+        "count": 200,
+        "total_reward": 3.5665,
+        "format_reward": 0.995,
+        "accuracy_reward": 2.5715,
+        "tool_name_match_pct": 95.02,
+        "strict_exact_match_pct": 75.0,
+        "schema_norm_exact_match_pct": 76.0,
+        "collapsed_pct": 1.5,
+        "avg_resp_chars": 747.5,
+        "avg_think_chars": 381.8,
+        "genuine_cot_pct": 100.0
+      },
+      "bfcl_irrelevance": {
+        "title": "6. BFCL Irrelevance Abstention (240)",
+        "count": 240,
+        "total_reward": -2.0875,
+        "format_reward": 0.225,
+        "accuracy_reward": -2.3125,
+        "tool_name_match_pct": 22.92,
+        "strict_exact_match_pct": 22.5,
+        "schema_norm_exact_match_pct": 22.92,
+        "collapsed_pct": 77.5,
+        "avg_resp_chars": 516.5,
+        "avg_think_chars": 268.1,
+        "genuine_cot_pct": 100.0
+      },
+      "bfcl_all": {
+        "title": "2-6. BFCL-v3 All 5 Sets (1,240)",
+        "count": 1240,
+        "total_reward": 2.5641,
+        "format_reward": 0.8476,
+        "accuracy_reward": 1.7166,
+        "tool_name_match_pct": 82.71,
+        "strict_exact_match_pct": 68.63,
+        "schema_norm_exact_match_pct": 70.65,
+        "collapsed_pct": 15.65,
+        "avg_resp_chars": 509.7,
+        "avg_think_chars": 273.3,
+        "genuine_cot_pct": 100.0
+      },
+      "bfcl_live_all": {
+        "title": "BFCL-v3 Live Total (1,351)",
+        "count": 1351,
+        "total_reward": 3.3129,
+        "format_reward": 0.9978,
+        "accuracy_reward": 2.3151,
+        "tool_name_match_pct": 94.48,
+        "strict_exact_match_pct": 58.33,
+        "schema_norm_exact_match_pct": 64.91,
+        "collapsed_pct": 0.3,
+        "avg_resp_chars": 398.5,
+        "avg_think_chars": 223.7,
+        "genuine_cot_pct": 100.0
+      },
+      "bfcl_live_simple": {
+        "title": "  ├─ Live Simple (258)",
+        "count": 258,
+        "total_reward": 3.4102,
+        "format_reward": 0.9884,
+        "accuracy_reward": 2.4218,
+        "tool_name_match_pct": 97.3,
+        "strict_exact_match_pct": 63.95,
+        "schema_norm_exact_match_pct": 66.67,
+        "collapsed_pct": 1.55,
+        "avg_resp_chars": 418.6,
+        "avg_think_chars": 242.8,
+        "genuine_cot_pct": 100.0
+      },
+      "bfcl_live_multiple": {
+        "title": "  ├─ Live Multiple (1,053)",
+        "count": 1053,
+        "total_reward": 3.2911,
+        "format_reward": 1.0,
+        "accuracy_reward": 2.2911,
+        "tool_name_match_pct": 93.77,
+        "strict_exact_match_pct": 57.17,
+        "schema_norm_exact_match_pct": 64.86,
+        "collapsed_pct": 0.0,
+        "avg_resp_chars": 387.6,
+        "avg_think_chars": 217.7,
+        "genuine_cot_pct": 100.0
+      },
+      "bfcl_live_parallel": {
+        "title": "  ├─ Live Parallel (16)",
+        "count": 16,
+        "total_reward": 3.5793,
+        "format_reward": 1.0,
+        "accuracy_reward": 2.5793,
+        "tool_name_match_pct": 100.0,
+        "strict_exact_match_pct": 62.5,
+        "schema_norm_exact_match_pct": 62.5,
+        "collapsed_pct": 0.0,
+        "avg_resp_chars": 570.6,
+        "avg_think_chars": 241.0,
+        "genuine_cot_pct": 100.0
+      },
+      "bfcl_live_parallel_multiple": {
+        "title": "  └─ Live Parallel-Multiple (24)",
+        "count": 24,
+        "total_reward": 3.0426,
+        "format_reward": 1.0,
+        "accuracy_reward": 2.0426,
+        "tool_name_match_pct": 91.67,
+        "strict_exact_match_pct": 45.83,
+        "schema_norm_exact_match_pct": 50.0,
+        "collapsed_pct": 0.0,
+        "avg_resp_chars": 544.7,
+        "avg_think_chars": 268.0,
+        "genuine_cot_pct": 100.0
+      },
+      "indomain_500": {
+        "all_500": {
+          "count": 500,
+          "mean_reward": 3.0537,
+          "format_pct": 99.8,
+          "tool_name_match_pct": 93.21,
+          "strict_em_pct": 59.0,
+          "norm_em_pct": 59.6,
+          "genuine_cot_pct": 100.0
+        },
+        "single_tool_250": {
+          "count": 250,
+          "mean_reward": 3.2818,
+          "format_pct": 99.6,
+          "tool_name_match_pct": 96.73,
+          "strict_em_pct": 64.4,
+          "norm_em_pct": 64.4,
+          "genuine_cot_pct": 100.0
+        },
+        "multi_tool_250": {
+          "count": 250,
+          "mean_reward": 2.8256,
+          "format_pct": 100.0,
+          "tool_name_match_pct": 89.68,
+          "strict_em_pct": 53.6,
+          "norm_em_pct": 54.8,
+          "genuine_cot_pct": 100.0
+        },
+        "toolace_250": {
+          "count": 250,
+          "mean_reward": 2.8732,
+          "format_pct": 100.0,
+          "tool_name_match_pct": 93.2,
+          "strict_em_pct": 48.4,
+          "norm_em_pct": 48.4,
+          "genuine_cot_pct": 100.0
+        },
+        "xlam_250": {
+          "count": 250,
+          "mean_reward": 3.2342,
+          "format_pct": 99.6,
+          "tool_name_match_pct": 93.21,
+          "strict_em_pct": 69.6,
+          "norm_em_pct": 70.8,
+          "genuine_cot_pct": 100.0
+        }
+      }
+    }
+  },
+  {
+    "model_tag": "model5_purerl_v2_ep8_step120",
+    "model_title": "Model 3b: Pure RL (Zero-RL GRPO, 8.0 Ep / Step 120, v2 Anti-Hacking Reward)",
+    "model_path": "outputs/merged/grpo-rlla4k-v2reward-PureRL-ep8-step120",
+    "description": "Extended 8-Epoch GRPO with v2 anti-hacking reward (selected at val_reward peak Step 120)",
+    "benchmarks": {
+      "all_1320": {
+        "title": "All 6 Multi-Bench Sets (1,320)",
+        "count": 1320,
+        "total_reward": 2.5832,
+        "format_reward": 0.853,
+        "accuracy_reward": 1.7302,
+        "tool_name_match_pct": 83.56,
+        "strict_exact_match_pct": 68.94,
+        "schema_norm_exact_match_pct": 70.76,
+        "collapsed_pct": 15.15,
+        "avg_resp_chars": 498.9,
+        "avg_think_chars": 264.3,
+        "genuine_cot_pct": 99.85
+      },
+      "rlla_all": {
+        "title": "1. RLLA-4k In-Domain (80)",
+        "count": 80,
+        "total_reward": 2.6832,
+        "format_reward": 0.975,
+        "accuracy_reward": 1.7082,
+        "tool_name_match_pct": 92.71,
+        "strict_exact_match_pct": 56.25,
+        "schema_norm_exact_match_pct": 61.25,
+        "collapsed_pct": 3.75,
+        "avg_resp_chars": 556.6,
+        "avg_think_chars": 266.7,
+        "genuine_cot_pct": 97.5
+      },
+      "rlla_single_tool": {
+        "title": "  ├─ 1a. RLLA Single-Tool (36)",
+        "count": 36,
+        "total_reward": 3.0021,
+        "format_reward": 1.0,
+        "accuracy_reward": 2.0021,
+        "tool_name_match_pct": 93.98,
+        "strict_exact_match_pct": 55.56,
+        "schema_norm_exact_match_pct": 63.89,
+        "collapsed_pct": 0.0,
+        "avg_resp_chars": 378.0,
+        "avg_think_chars": 227.0,
+        "genuine_cot_pct": 100.0
+      },
+      "rlla_multi_tool": {
+        "title": "  ├─ 1b. RLLA Multi-Tool (35)",
+        "count": 35,
+        "total_reward": 3.0165,
+        "format_reward": 1.0,
+        "accuracy_reward": 2.0165,
+        "tool_name_match_pct": 95.24,
+        "strict_exact_match_pct": 51.43,
+        "schema_norm_exact_match_pct": 54.29,
+        "collapsed_pct": 2.86,
+        "avg_resp_chars": 569.1,
+        "avg_think_chars": 321.4,
+        "genuine_cot_pct": 100.0
+      },
+      "rlla_no_tool": {
+        "title": "  └─ 1c. RLLA No-Tool Abstention (9)",
+        "count": 9,
+        "total_reward": 0.1111,
+        "format_reward": 0.7778,
+        "accuracy_reward": -0.6667,
+        "tool_name_match_pct": 77.78,
+        "strict_exact_match_pct": 77.78,
+        "schema_norm_exact_match_pct": 77.78,
+        "collapsed_pct": 22.22,
+        "avg_resp_chars": 1222.6,
+        "avg_think_chars": 212.4,
+        "genuine_cot_pct": 77.78
+      },
+      "bfcl_tool_1000": {
+        "title": "2-5. BFCL-v3 Standard Tool-Call (1,000)",
+        "count": 1000,
+        "total_reward": 3.7122,
+        "format_reward": 0.998,
+        "accuracy_reward": 2.7142,
+        "tool_name_match_pct": 97.79,
+        "strict_exact_match_pct": 81.5,
+        "schema_norm_exact_match_pct": 83.4,
+        "collapsed_pct": 0.7,
+        "avg_resp_chars": 501.1,
+        "avg_think_chars": 270.0,
+        "genuine_cot_pct": 100.0
+      },
+      "bfcl_simple": {
+        "title": "  ├─ 2. BFCL Simple (400)",
+        "count": 400,
+        "total_reward": 3.7606,
+        "format_reward": 0.995,
+        "accuracy_reward": 2.7656,
+        "tool_name_match_pct": 98.88,
+        "strict_exact_match_pct": 82.75,
+        "schema_norm_exact_match_pct": 85.0,
+        "collapsed_pct": 0.75,
+        "avg_resp_chars": 372.8,
+        "avg_think_chars": 219.6,
+        "genuine_cot_pct": 100.0
+      },
+      "bfcl_multiple": {
+        "title": "  ├─ 3. BFCL Multiple (200)",
+        "count": 200,
+        "total_reward": 3.7125,
+        "format_reward": 1.0,
+        "accuracy_reward": 2.7125,
+        "tool_name_match_pct": 97.5,
+        "strict_exact_match_pct": 81.5,
+        "schema_norm_exact_match_pct": 85.5,
+        "collapsed_pct": 0.5,
+        "avg_resp_chars": 378.1,
+        "avg_think_chars": 224.8,
+        "genuine_cot_pct": 100.0
+      },
+      "bfcl_parallel": {
+        "title": "  ├─ 4. BFCL Parallel (200)",
+        "count": 200,
+        "total_reward": 3.6933,
+        "format_reward": 1.0,
+        "accuracy_reward": 2.6933,
+        "tool_name_match_pct": 97.38,
+        "strict_exact_match_pct": 84.0,
+        "schema_norm_exact_match_pct": 85.0,
+        "collapsed_pct": 0.5,
+        "avg_resp_chars": 620.8,
+        "avg_think_chars": 292.6,
+        "genuine_cot_pct": 100.0
+      },
+      "bfcl_parallel_multiple": {
+        "title": "  └─ 5. BFCL Parallel-Multiple (200)",
+        "count": 200,
+        "total_reward": 3.634,
+        "format_reward": 1.0,
+        "accuracy_reward": 2.634,
+        "tool_name_match_pct": 96.31,
+        "strict_exact_match_pct": 76.5,
+        "schema_norm_exact_match_pct": 76.5,
+        "collapsed_pct": 1.0,
+        "avg_resp_chars": 760.8,
+        "avg_think_chars": 393.2,
+        "genuine_cot_pct": 100.0
+      },
+      "bfcl_irrelevance": {
+        "title": "6. BFCL Irrelevance Abstention (240)",
+        "count": 240,
+        "total_reward": -2.1542,
+        "format_reward": 0.2083,
+        "accuracy_reward": -2.3625,
+        "tool_name_match_pct": 21.25,
+        "strict_exact_match_pct": 20.83,
+        "schema_norm_exact_match_pct": 21.25,
+        "collapsed_pct": 79.17,
+        "avg_resp_chars": 470.7,
+        "avg_think_chars": 239.7,
+        "genuine_cot_pct": 100.0
+      },
+      "bfcl_all": {
+        "title": "2-6. BFCL-v3 All 5 Sets (1,240)",
+        "count": 1240,
+        "total_reward": 2.5768,
+        "format_reward": 0.8452,
+        "accuracy_reward": 1.7316,
+        "tool_name_match_pct": 82.97,
+        "strict_exact_match_pct": 69.76,
+        "schema_norm_exact_match_pct": 71.37,
+        "collapsed_pct": 15.89,
+        "avg_resp_chars": 495.2,
+        "avg_think_chars": 264.1,
+        "genuine_cot_pct": 100.0
+      },
+      "bfcl_live_all": {
+        "title": "BFCL-v3 Live Total (1,351)",
+        "count": 1351,
+        "total_reward": 3.3237,
+        "format_reward": 0.997,
+        "accuracy_reward": 2.3267,
+        "tool_name_match_pct": 94.63,
+        "strict_exact_match_pct": 58.77,
+        "schema_norm_exact_match_pct": 65.58,
+        "collapsed_pct": 0.3,
+        "avg_resp_chars": 386.3,
+        "avg_think_chars": 215.5,
+        "genuine_cot_pct": 100.0
+      },
+      "bfcl_live_simple": {
+        "title": "  ├─ Live Simple (258)",
+        "count": 258,
+        "total_reward": 3.439,
+        "format_reward": 0.9845,
+        "accuracy_reward": 2.4545,
+        "tool_name_match_pct": 97.56,
+        "strict_exact_match_pct": 64.73,
+        "schema_norm_exact_match_pct": 67.05,
+        "collapsed_pct": 1.55,
+        "avg_resp_chars": 411.4,
+        "avg_think_chars": 237.2,
+        "genuine_cot_pct": 100.0
+      },
+      "bfcl_live_multiple": {
+        "title": "  ├─ Live Multiple (1,053)",
+        "count": 1053,
+        "total_reward": 3.2953,
+        "format_reward": 1.0,
+        "accuracy_reward": 2.2953,
+        "tool_name_match_pct": 93.85,
+        "strict_exact_match_pct": 57.45,
+        "schema_norm_exact_match_pct": 65.53,
+        "collapsed_pct": 0.0,
+        "avg_resp_chars": 374.4,
+        "avg_think_chars": 208.8,
+        "genuine_cot_pct": 100.0
+      },
+      "bfcl_live_parallel": {
+        "title": "  ├─ Live Parallel (16)",
+        "count": 16,
+        "total_reward": 3.5352,
+        "format_reward": 1.0,
+        "accuracy_reward": 2.5352,
+        "tool_name_match_pct": 100.0,
+        "strict_exact_match_pct": 62.5,
+        "schema_norm_exact_match_pct": 62.5,
+        "collapsed_pct": 0.0,
+        "avg_resp_chars": 529.8,
+        "avg_think_chars": 217.4,
+        "genuine_cot_pct": 100.0
+      },
+      "bfcl_live_parallel_multiple": {
+        "title": "  └─ Live Parallel-Multiple (24)",
+        "count": 24,
+        "total_reward": 3.1884,
+        "format_reward": 1.0,
+        "accuracy_reward": 2.1884,
+        "tool_name_match_pct": 93.75,
+        "strict_exact_match_pct": 50.0,
+        "schema_norm_exact_match_pct": 54.17,
+        "collapsed_pct": 0.0,
+        "avg_resp_chars": 546.7,
+        "avg_think_chars": 270.7,
+        "genuine_cot_pct": 100.0
+      },
+      "indomain_500": {
+        "all_500": {
+          "count": 500,
+          "mean_reward": 3.1647,
+          "format_pct": 100.0,
+          "tool_name_match_pct": 94.04,
+          "strict_em_pct": 63.2,
+          "norm_em_pct": 63.2,
+          "genuine_cot_pct": 100.0
+        },
+        "single_tool_250": {
+          "count": 250,
+          "mean_reward": 3.3758,
+          "format_pct": 100.0,
+          "tool_name_match_pct": 97.53,
+          "strict_em_pct": 68.4,
+          "norm_em_pct": 68.4,
+          "genuine_cot_pct": 100.0
+        },
+        "multi_tool_250": {
+          "count": 250,
+          "mean_reward": 2.9536,
+          "format_pct": 100.0,
+          "tool_name_match_pct": 90.55,
+          "strict_em_pct": 58.0,
+          "norm_em_pct": 58.0,
+          "genuine_cot_pct": 100.0
+        },
+        "toolace_250": {
+          "count": 250,
+          "mean_reward": 2.9988,
+          "format_pct": 100.0,
+          "tool_name_match_pct": 93.81,
+          "strict_em_pct": 52.8,
+          "norm_em_pct": 52.8,
+          "genuine_cot_pct": 100.0
+        },
+        "xlam_250": {
+          "count": 250,
+          "mean_reward": 3.3306,
+          "format_pct": 100.0,
+          "tool_name_match_pct": 94.28,
+          "strict_em_pct": 73.6,
+          "norm_em_pct": 73.6,
+          "genuine_cot_pct": 100.0
+        }
       }
     }
   }

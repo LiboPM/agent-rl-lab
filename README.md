@@ -1,151 +1,270 @@
 <div align="center">
 
-# Agent-RL-Lab: Tool-Use SFT vs. RL (VeRL GRPO + LLaMA-Factory)
+# Agent-RL-Lab: Supervised Fine-Tuning vs. Reinforcement Learning for LLM Tool Use
 
-**An Empirical Study & Reproducible Pipeline on Function Calling Memorization vs. Generalization**
+**A Systematic Empirical Study of SFT Overfitting Dynamics, GRPO Reward Engineering, Policy Entropy Collapse, and Cold-Start SFT + RL Synergy on `Qwen3-4B-Base`**
 
 [![English](https://img.shields.io/badge/Language-English-2563eb?style=for-the-badge)](README.md)
 [![简体中文](https://img.shields.io/badge/语言-简体中文-059669?style=for-the-badge)](README_zh.md)
-[![Technical Report (EN)](https://img.shields.io/badge/Report-English-475569?style=for-the-badge)](docs/SFT_vs_RL_Tool_Use_Deep_Dive.md)
-[![技术报告 (中文)](https://img.shields.io/badge/技术报告-中文版-475569?style=for-the-badge)](docs/SFT_vs_RL_Tool_Use_Deep_Dive_zh.md)
+[![Deep Dive Report (EN)](https://img.shields.io/badge/Report-Technical_Deep_Dive_(EN)-7c3aed?style=for-the-badge)](docs/SFT_vs_RL_Tool_Use_Deep_Dive.md)
+[![深度报告 (中文)](https://img.shields.io/badge/报告-技术深度剖析_(中文)-d97706?style=for-the-badge)](docs/SFT_vs_RL_Tool_Use_Deep_Dive_zh.md)
 
-[**English (Default)**](README.md) &nbsp;|&nbsp; [**简体中文 (点击切换)**](README_zh.md)
+[![Framework: VeRL](https://img.shields.io/badge/RL_Engine-VeRL_(FSDP_+_vLLM)-10b981?style=flat-square)](https://github.com/volcengine/verl)
+[![SFT: LLaMA-Factory](https://img.shields.io/badge/SFT_Engine-LLaMA--Factory_(DeepSpeed_ZeRO--2)-3b82f6?style=flat-square)](https://github.com/hiyouga/LLaMA-Factory)
+[![Base Model: Qwen3-4B-Base](https://img.shields.io/badge/Base_Model-Qwen3--4B--Base-8b5cf6?style=flat-square)](https://huggingface.co/Qwen)
+[![Evaluation: 3,171 Samples](https://img.shields.io/badge/Benchmarks-RLLA--80_%7C_InDomain--500_%7C_BFCL--v3_%7C_BFCL--Live-f59e0b?style=flat-square)](#2-benchmark-design--experimental-matrix-n--3171)
 
 </div>
 
 ---
 
-## 1. Overview & Benchmark Results
+## Abstract & Research Questions
 
-Starting from **Qwen3-4B-Base**, we train five controlled model variants on the exact same tool-calling dataset (`ToolRL / RLLA-4k`, 3,920 training samples) and evaluate them across **three benchmarks (2,431 test samples total)**:
+When adapting a pretrained base language model (`Qwen3-4B-Base`) into a reliable **Tool-Calling Agent**, practitioners face three fundamental design decisions:
+1. **Stage 1 — Supervised Fine-Tuning (`Pure SFT`)**: How should we select the optimal SFT checkpoint (`train_loss` vs. `eval_loss`), and why does standard SFT on tool-calling datasets (`RLLA-4k`) degrade Out-of-Domain (OOD) generalization?
+2. **Stage 2 — Reinforcement Learning (`Zero-RL GRPO`)**: Can Group Relative Policy Optimization (`GRPO`) directly train a base model without SFT, how does dense reward shaping (`v1` $\rightarrow$ `v2`) suppress reward hacking, and where does RL training reach its validation convergence peak?
+3. **Stage 3 — Combining `SFT + GRPO`**: Why does initializing GRPO from a converged Full-SFT checkpoint fail to improve performance (**Policy Entropy Collapse**), and how does a lightweight, genuine-reasoning **Cold-Start SFT (`320` samples, `1` Epoch) + GRPO** pipeline restore exploration and achieve positive synergy?
 
-1. **RLLA-4k Test (`N=80`, In-Domain)**: Held-out split from the same source distribution as the training set (comprising 64 clean samples and 16 samples with upstream dataset conversion artifacts).
-2. **BFCL-v3 Standard (`N=1,000`, Out-of-Domain)**: UC Berkeley Function Calling Leaderboard benchmark (`Simple 400`, `Multiple 200`, `Parallel 200`, `Parallel-Multiple 200`) featuring unseen APIs.
-3. **BFCL-v3 Live (`N=1,351`, Out-of-Domain Real-World)**: Real-world user queries containing 10–20 candidate tool schemas per prompt.
+To answer these questions rigorously, we evaluate **8 controlled model checkpoints** across **4 benchmark suites totaling `3,171` test instances** (including a newly constructed **`500`-sample AST-verified Expanded In-Domain Test Set** and a **7-category Error Taxonomy `E1`–`E7`**).
 
-![In-Domain Memorization (SFT) vs. Out-of-Domain Generalization (RL)](assets/fig1_sft_vs_rl_overview.png)
-
-### Summary of Controlled Experiments
-
-| Model Variant | Compute & Wall Time | `RLLA-4k` In-Domain<br>(All 80 / Clean 64) | `BFCL-v3` Standard OOD<br>(N=1,000 · Strict / Norm EM) | `BFCL-Live` Real-World OOD<br>(N=1,351 · Strict / Norm EM) | Genuine CoT Ratio |
-| :--- | :---: | :---: | :---: | :---: | :---: |
-| **0. Zero-Shot Base** (`Qwen3-4B-Base-rlla`) | — | `43.75%` / `54.69%` | `60.20%` / `63.60%` | `45.30%` / `51.89%` | `93.8%` |
-| **1. Pure SFT** (`3,920 samples × 2 Epochs`) | 8 GPUs · 10 mins | **`73.75%`** / **`79.69%`** | `60.40%` / `64.60%` | `49.30%` / `58.92%` | `0.0%` |
-| **2. Full-SFT + RL** (`2Ep SFT + 120-step GRPO`) | 10m + 1.5 hrs | `72.50%` / `78.12%` | `59.70%` / `63.90%` | `48.93%` / `58.77%` | `0.0%` |
-| **3. Cold-Start SFT** (`320 samples × 1 Epoch`) | 8 GPUs · 1 min | `50.00%` / `60.94%` | `67.10%` / `70.50%` | `51.81%` / `59.44%` | `95.0%` |
-| **4. Pure RL** (`Zero-RL GRPO 4 Epochs, v1`) | 32 GPUs · 1.5 hrs | `56.25%` / `70.31%` | `79.70%` / `81.90%` | `58.11%` / `64.99%` | `97.5%` |
-| **5. Pure RL** (`GRPO 8 Epochs, v2 Reward`) | 32 GPUs · 3.0 hrs | `57.50%` / **`71.88%`** | **`81.50%`** / **`83.40%`** | **`58.77%`** / **`65.58%`** | **`98.8%`** |
+<div align="center">
+  <img src="assets/fig1_sft_vs_rl_overview.png" width="96%" alt="Comprehensive 4-Benchmark Overview Across 2,931 Tool-Calling Samples"/>
+</div>
 
 ---
 
-## 2. Key Technical Findings
+## 1. Three-Stage Research Narrative & Checkpoint Selection Protocol
 
-### 2.1 In-Domain Memorization vs. Out-of-Domain Generalization
-- **In-Domain (`RLLA-4k`)**: When in-distribution supervision is available, **Pure SFT reaches `73.75%` in 10 minutes** (`79.69%` on the 64 clean samples), capturing dataset-specific default parameter conventions and refusal phrasing at 1/18th the compute cost of RL.
-- **Out-of-Domain (`BFCL-v3` & `BFCL-Live`)**: On unseen tool definitions, Pure SFT stagnates at `60.40%` on `BFCL-v3` (+0.2% over the untrained Base model `60.20%`). **Pure RL reaches `81.50%` (+21.1% over Pure SFT)** and outperforms Pure SFT by **+35.0%** (`76.50%` vs. `41.50%`) on the hardest `Parallel-Multiple` subset.
-- **Label Quality Audit on `RLLA-4k`**: AST inspection of `RLLA-4k` reveals that 16/80 test samples (20%) contain corrupted Ground Truth labels caused by naive `.split(",")` parsing during upstream dataset construction (6 samples with truncated unclosed JSON strings such as `"[{\"subject\": \"Mathematics\""`, and 10 samples with string-quoted integers/booleans violating the prompt's JSON Schema). Pure SFT achieves `50.00%` on these 16 corrupted samples by memorizing the 536 analogous truncation artifacts in the training split, whereas Pure RL emits valid JSON and scores `0.00%` against the broken labels. On the 64 clean samples, Pure RL achieves `71.88%`.
+A common pitfall in comparing SFT and RL is evaluating arbitrary training steps rather than selecting each paradigm's optimal checkpoint via validation metrics. Figure 2 illustrates our three-stage experimental progression and checkpoint selection criteria:
 
-![In-Domain Label Quality Audit & Out-of-Domain Complexity Scaling](assets/fig3_deep_dive_clean_dirty_and_bfcl.png)
+<div align="center">
+  <img src="assets/fig2_training_dynamics_entropy_collapse.png" width="98%" alt="Three-Stage Experimental Progression: SFT Loss, RL Reward, and Policy Entropy"/>
+</div>
 
-### 2.2 Why Full-SFT + GRPO Stalls: Boilerplate CoT and Policy Entropy Collapse
-- Every sample in the raw `RLLA-4k` training set contains a static 14-word boilerplate template inside `<think>` (`"I should use the appropriate tool with proper parameters to respond to the user's need."`).
-- Training 2 epochs of full-parameter SFT via token-level teacher forcing overwrites the Base model's native reasoning distribution with this template, collapsing token-level policy entropy (`actor/entropy`) from `0.72` to `0.08`.
-- During subsequent GRPO training, all $G=8$ rollouts per prompt produce identical token sequences, yielding zero within-group reward variance ($\text{std}(r) = 0$) and zero policy gradient updates (75/80 validation outputs at Step 120 remain character-for-character identical to Step 0).
-- In contrast, **Pure RL** evaluates only the `<tool_call>` JSON payload and leaves `<think>` unconstrained, preserving multi-step reasoning (`98.8%` genuine CoT). For SFT warm-up prior to RL, rejection-sampling 320 trajectories with genuine CoT (`Model 3: Cold-Start SFT`, 1 epoch / 5 steps) achieves `0.95` format compliance while retaining `95.0%` genuine CoT.
+### Stage 1: SFT Exploration & The Overfitting Inflection Point (`Model 1a` vs. `Model 1b`)
+We train `Qwen3-4B-Base-rlla` on the full `RLLA-4k` training split (`3,920` samples, global batch size `64`, `62` steps/epoch) using LLaMA-Factory and evaluate every epoch on held-out validation loss (`eval_loss`):
 
-![Training Dynamics: Pure RL vs. Full-SFT + GRPO](assets/fig2_training_dynamics_entropy_collapse.png)
+| SFT Checkpoint | Global Step | Training Loss (`train_loss`) | Validation Loss (`eval_loss`) | RLLA-80 Strict EM | In-Domain 500 Strict EM | BFCL-v3 (1k) Strict / Norm EM | BFCL-Live (1,351) Strict / Norm EM |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **`Model 1a`: Pure SFT (`1.0 Ep`, Min Eval-Loss)** | `Step 62` | `0.1510` | **`0.1582` (Global Min)** | `73.75%` | `64.60%` | `60.20%` / **`74.80%`** | **`52.70%` / `66.17%`** |
+| **`Model 1b`: Pure SFT (`2.0 Ep`, Min Train-Loss)** | `Step 124` | **`0.0196`** | `0.1700` (`+7.5%` Rebound) | `73.75%` | **`65.60%`** | `60.40%` / `74.10%` | `49.30%` / `62.92%` (`-3.40%`) |
 
-### 2.3 Dense Reward Shaping & Anti-Reward-Hacking (`rewards/rlla_reward_v2.py`)
-To provide dense intermediate gradients while preventing reward hacking, `rlla_reward_v2.py` shapes rewards across `[-3.0, +4.0]` with two key mechanisms:
-- **Extra-Key Penalty (`-0.75 / key`)**: Penalizes redundant optional parameter keys not present in the Ground Truth (`set(pd_params.keys()) - set(gt_params.keys())`), eliminating the strategy of guessing all optional schema fields.
-- **Non-Exact Match Cap (`+3.4` vs. `+4.0`)**: Caps non-exact tool calls at `+3.4` total score, preserving a `+0.60` advantage margin exclusively for 100% strict exact match (`gt_tools == pd_tools`).
-
-![Dense Reward Shaping & Anti-Reward-Hacking Design](assets/fig4_reward_v2_staircase.png)
-
-### 2.4 Qwen3-Base Untrained Special Token Removal & Cross-Framework Alignment
-- **Stripping Untrained Added Tokens (`scripts/prepare_qwen3_base_tokenizer.py`)**: In `Qwen3-4B-Base`, token IDs `151644..151668` (`<|im_end|>`, `<think>`, `<tool_call>`, etc.) have untrained embedding rows identical to 2,227 unused vocabulary entries (`norm=0.3574`). Removing `151644..151668` from `added_tokens` decomposes XML tags into pre-trained BPE subwords and sets `<|endoftext|>` (`151643`, `norm=1.2266`) as the sole EOS token, improving Step 0 zero-shot exact match from `0.00%` to `43.75%`.
-- **Token-Exact Alignment Between LLaMA-Factory and VeRL (`configs/sft_qwen3_4b_base_rlla.yaml`)**: Omitting `template` in LLaMA-Factory forces `parse_template()` to load `tokenizer.chat_template` directly with `replace_eos=False`, guaranteeing identical `prompt_ids` and `eos_token_id` across SFT and VeRL.
+- **Why `eval_loss` diverges from `train_loss` after Epoch 1.0**: Between Step 62 (`1.0 Ep`) and Step 124 (`2.0 Ep`), training loss drops by `87%` (`0.1510` $\rightarrow$ `0.0196`), but validation loss rebounds from **`0.1582` to `0.1700`**.
+- **In-Domain Memorization vs. OOD Degradation**: Training for a second epoch slightly improves accuracy on unseen queries sharing the exact same training tools (`Expanded In-Domain 500`: `64.60%` $\rightarrow$ `65.60%`), but **degrades real-world OOD accuracy on `BFCL-Live` by `-3.40%` (`52.70%` $\rightarrow$ `49.30%`)**, triggered by a **`9.8×` surge in False Abstention errors (`E2`: `5` $\rightarrow$ `49` cases)**.
+- **Loss of Chain-of-Thought (`0.0%` Genuine CoT)**: Because `99.4%` (`3,895 / 3,920`) of `RLLA-4k` training targets contain a static 16-word boilerplate string inside `<think>` (`"I should use the appropriate tool with proper parameters to respond to the user's need."`), sequence-level cross-entropy loss forces both `1.0 Ep` and `2.0 Ep` SFT models to overwrite pretrained reasoning with this template (`100%` boilerplate output).
 
 ---
 
-## 3. Repository Structure
+### Stage 2: Pure RL (`Zero-RL GRPO`) Exploration, Reward Engineering (`v1` $\rightarrow$ `v2`), & Peak Selection (`Model 3a` vs. `Model 3b`)
+Instead of supervised imitation, we apply **VeRL GRPO** (`G = 8` rollouts per prompt, `KL = 0.001`) directly to `Qwen3-4B-Base-rlla`, evaluating validation reward (`val-core/rlla/reward/mean@1`) every 10 steps (`30 steps = 1.0 Epoch`):
+
+| RL Stage & Reward Function | Training Horizon | Val Reward Trajectory (`Step 0` $\rightarrow$ Peak $\rightarrow$ End) | Selected Peak Checkpoint | In-Domain 500 Strict EM | BFCL-v3 (1k) Strict / Norm EM | BFCL-Live Strict / Norm EM |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| **`Model 3a`: Pure RL (`v1` Reward)** | `0 -> 4.0 Ep` (`120` steps) | `+0.4090` $\rightarrow$ **`+2.6584` (`Step 120`)** | `Step 120` (`4.0 Ep`) | `59.00%` | `79.70%` / `82.10%` | `58.33%` / `64.91%` |
+| **`Model 3b`: Pure RL (`v2` Anti-Hacking)** | `4.0 -> 9.0 Ep` (`150` steps) | `+2.6594` $\rightarrow$ **`+2.7421` (`Step 120`)** $\rightarrow$ `+2.7077` (`Step 150`) | **`Step 120` (`8.0 Ep`)** | **`63.20%` (`+4.20%`)** | **`81.50%` / `83.40%`** | **`58.77%` / `65.58%`** |
+
+- **Why Pure RL Preserves `100%` Genuine CoT**: Our outcome-based verifier (`rewards/rlla_reward_v2.py`) parses `<think>...</think>` only to verify structural presence (`+1.0` format reward) and evaluates accuracy (`[-3.0, +3.0]`) strictly on the `<tool_call>` JSON AST. It **never computes token loss against the boilerplate `<think>` text in Ground Truth**. Rollouts containing genuine step-by-step arithmetic and schema checks achieve higher parameter accuracy and receive positive group-relative advantages ($A_i > 0$).
+- **Diagnosing & Fixing Reward Hacking (`v1` $\rightarrow$ `v2`)**: Error taxonomy analysis on `Model 3a (v1 Reward)` revealed `50` cases of **`E5_Hallucinated_Extra_Param_Key`** on `In-Domain 500` (speculatively filling optional parameters with default values because `v1` deducted only `-0.25/extra_key` and allowed non-exact match scores up to `+3.75`). In `rewards/rlla_reward_v2.py`, we increased the extra-key penalty to **`-0.75/key`** and capped non-exact accuracy at **`+2.40` (total `+3.40` vs. `+4.00` for exact match)**. Continuing training to the `Step 120` validation peak (`+2.7421`) cuts `E5` extra-key hallucinations by **`-28%` (`50` $\rightarrow$ `36`)** and boosts `In-Domain 500` Strict EM by **`+4.20%` (`59.00%` $\rightarrow$ `63.20%`)**.
+
+---
+
+### Stage 3: Combining `SFT + GRPO` — Resolving the Entropy Collapse Paradox (`Model 2a` Negative Control vs. `Model 2c` Positive Control)
+Why do standard `SFT -> RL` pipelines often stall in tool-calling tasks, and how should SFT be designed to genuinely benefit subsequent RL? We run a controlled comparison on the exact same 32-GPU VeRL GRPO setup:
+
+| Pipeline Design | Initial Policy Entropy (`Step 0`) | GRPO Validation Reward (`Step 0` $\rightarrow$ Peak) | Genuine CoT Rate | In-Domain 500 Strict EM | BFCL-v3 (1k) Strict / Norm EM | BFCL-Live Strict / Norm EM |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| **`Model 2a`: Full-SFT (`2Ep`) + GRPO (Negative Control)** | `0.085` (Collapsed) | `+2.9558` $\rightarrow$ `+2.9370` (Stalled) | `0.0%` | `65.20%` (`-0.40%` vs SFT) | `59.50%` / `73.60%` (`-0.90%`) | `49.30%` / `63.06%` (`+0.00%`) |
+| **`Model 2b`: Cold-Start SFT (`320` Genuine-CoT, `1Ep`)** | `0.492` (Healthy) | `+2.5112` (at `Step 0`) | `99.8%` | `60.00%` | `79.30%` / `81.60%` | `58.92%` / `64.99%` |
+| **`Model 2c`: Cold-Start SFT (`320`) + GRPO (`Step 100`, Positive Control)** | `0.492` $\rightarrow$ `0.215` | `+2.5112` $\rightarrow$ **`+2.7486` (`Step 100` Peak)** | **`100.0%`** | **`62.60%` (`+2.60%` gain)** | **`81.20%` / `83.00%` (`+1.90%` gain)** | **`58.99%` / `65.21%` (Best Overall)** |
+
+1. **Why `Full-SFT (2Ep) + GRPO` Fails (`Model 2a`)**:
+   - After 2 epochs of SFT on boilerplate `<think>`, token-level policy entropy collapses to `0.08–0.12`.
+   - When GRPO samples $G=8$ responses per prompt at `temperature=1.0`, almost all 8 trajectories emit the exact same boilerplate `<think>` and identical `<tool_call>` JSON:
+     $$\sigma_r = \sqrt{\frac{1}{G}\sum_{i=1}^{G}(r_i - \mu_r)^2} = 0 \implies A_i = \frac{r_i - \mu_r}{\sigma_r + \epsilon} = 0$$
+   - With zero intra-group variance, policy gradients vanish. At `Step 120`, `75 / 80` validation predictions are character-for-character identical to `Step 0`.
+2. **How `Cold-Start SFT (320) + GRPO` Succeeds (`Model 2c`)**:
+   - We curate **`320` high-quality trajectories (`data/sft_coldstart_320/train_coldstart_320.json`)** containing **genuine multi-step `<think>` reasoning** and train for **only `1.0 Epoch` (`5` gradient steps, `lr = 1e-5`)**.
+   - This lightweight warm-up immediately raises initial XML format compliance from `2.5%` (Base) to **`93.75%`** (`Step 0` validation reward **`+2.5112`** vs. `+0.4090` for Base) while preserving high policy entropy (**`0.492`**).
+   - Subsequent GRPO (`v2` reward) actively explores diverse tool compositions, climbing steadily from **`+2.5112` (`Step 0`) $\rightarrow$ `+2.6504` (`Step 30`) $\rightarrow$ `+2.7079` (`Step 90`) $\rightarrow$ `+2.7486` (`Step 100` Global Peak)**, improving `In-Domain 500` by **`+2.60%`** (`Multi-Tool`: `48.40%` $\rightarrow$ **`54.80%`**, `+6.40%`), improving `BFCL-v3 Standard` by **`+1.90%`** (`Parallel-Multiple`: `70.00%` $\rightarrow$ **`75.50%`**, `+5.50%`), and achieving the **highest `BFCL-Live` Strict EM (`58.99%`) across all 8 models**!
+
+---
+
+## 2. Benchmark Design & Experimental Matrix (`N = 3,171`)
+
+To ensure statistical rigor and eliminate small-sample bias from the original 80-sample `RLLA-4k` test split, we evaluate all 8 models across **4 complementary benchmark suites (`3,171` samples)**:
+
+| Benchmark Suite | Sample Size | Domain Relationship | Structural Composition & Evaluation Focus |
+| :--- | :---: | :---: | :--- |
+| **1. `RLLA-4k` Original Test Set** | `80` | **In-Domain** (Original Split) | `36` Single-Tool + `35` Multi-Tool + `9` No-Tool Abstention (`64` Clean AST + `16` Noisy/Truncated GT). |
+| **2. `RLLA-4k` Expanded In-Domain Test Set** (`test_indomain_500.parquet`) | **`500`** (`6.25×` larger) | **Strictly In-Domain** (100% Seen Tools, 0% Query Overlap) | `250` Single-Tool + `250` Multi-Tool (`250` xLAM + `250` ToolACE). **100% of candidate tools appear in `train.parquet`**, **100% pass AST validation**. |
+| **3. `BFCL-v3` Standard Benchmark** | `1,240` (`1,000` Call + `240` Irrel) | **Out-of-Domain** (Unseen Schemas) | `400` Simple + `200` Multiple + `200` Parallel + `200` Parallel-Multiple + `240` Irrelevance Abstention. |
+| **4. `BFCL-v3 Live` Real-World Benchmark** | `1,351` | **Out-of-Domain** (Real Enterprise Queries) | `258` Live-Simple + `1,053` Live-Multiple + `16` Live-Parallel + `24` Live-Parallel-Multiple (`10–20` candidate tools per prompt). |
+
+### Master Evaluation Table Across All 8 Models (`Strict EM%` / `Schema-Normalized EM%`)
+
+| Model ID & Training Paradigm | RLLA-4k Original (`N=80`) | Expanded In-Domain (`N=500`) | BFCL-v3 Standard (`N=1,000`) | BFCL-v3 Live (`N=1,351`) | BFCL Irrelevance (`N=240`) | Genuine `<think>` CoT Rate |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| **`0. Zero-Shot Base`** (`Qwen3-4B-Base-rlla`) | `43.75%` / `50.00%` | `52.20%` / `53.00%` | `69.50%` / `72.60%` | `57.81%` / `63.73%` | `19.17%` | `99.7%` (`290` chars) |
+| **`1a. Pure SFT (1.0 Ep, Min Eval-Loss=0.1582)`** | **`73.75%` / `75.00%`** | `64.60%` / `69.00%` | `60.20%` / `74.80%` | `52.70%` / `66.17%` | `76.25%` | `0.0%` (`87` chars, Fake) |
+| **`1b. Pure SFT (2.0 Ep, Min Train-Loss=0.0196)`** | **`73.75%` / `75.00%`** | **`65.60%` / `69.80%`** | `60.40%` / `74.10%` | `49.30%` / `62.92%` | **`89.17%`** | `0.0%` (`87` chars, Fake) |
+| **`2a. Full-SFT (2.0 Ep) + GRPO (Step 120, Neg. Ctrl)`** | `72.50%` / `75.00%` | `65.20%` / `69.60%` | `59.50%` / `73.60%` | `49.30%` / `63.06%` | `88.33%` | `0.0%` (`87` chars, Fake) |
+| **`2b. Cold-Start SFT (320 Genuine-CoT, 1.0 Ep)`** | `48.75%` / `55.00%` | `60.00%` / `60.40%` | `79.30%` / `81.60%` | `58.92%` / `64.99%` | `16.25%` | `99.8%` (`249` chars) |
+| **`2c. Cold-Start SFT (320) + GRPO (Step 100, Pos. Ctrl)`** | `50.00%` / `57.50%` | `62.60%` / `63.00%` | `81.20%` / `83.00%` | **`58.99%`** / `65.21%` | `15.83%` | **`100.0%`** (`268` chars) |
+| **`3a. Pure RL (Zero-RL GRPO, 4.0 Ep, v1 Reward)`** | `53.75%` / `60.00%` | `59.00%` / `59.60%` | `79.70%` / `82.10%` | `58.33%` / `64.91%` | **`22.50%`** | **`100.0%`** (`275` chars) |
+| **`3b. Pure RL (Zero-RL GRPO, 8.0 Ep, v2 Reward)`** | `56.25%` / `61.25%` | `63.20%` / `63.20%` | **`81.50%` / `83.40%`** | `58.77%` / **`65.58%`** | `20.83%` | **`100.0%`** (`281` chars) |
+
+---
+
+## 3. Deconstructing In-Domain Performance & OOD Complexity Scaling
+
+Why does `Pure SFT` appear to lead `Pure RL` by `+17.5%` on `RLLA-4k (80)` (`73.75%` vs. `56.25%`), yet only by `+2.4%` on `Expanded In-Domain (500)` (`65.60%` vs. `63.20%`), while trailing by **`-21.1%` on `BFCL-v3 Standard (1,000)`** (`60.40%` vs. `81.50%`)? Figure 3 reveals the exact structural mechanisms:
+
+<div align="center">
+  <img src="assets/fig3_deep_dive_clean_dirty_and_bfcl.png" width="98%" alt="In-Domain Label Audit & Out-of-Domain Complexity Scaling"/>
+</div>
+
+### 3.1 In-Domain Sub-Category Breakdown (`Expanded In-Domain N=500` & `RLLA-80`)
+
+| In-Domain Subset | Sample Count | `0. Base` | `1a. SFT (1Ep)` | `1b. SFT (2Ep)` | `2b. Cold-Start SFT` | `2c. Cold-Start SFT + GRPO` | `3a. Pure RL (v1)` | `3b. Pure RL (v2)` |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **`RLLA-80` Clean Valid GT** | `64` | `54.69%` | `79.69%` | **`79.69%`** | `60.94%` | `62.50%` | `67.19%` | **`71.88%`** |
+| **`RLLA-80` Noisy / Truncated GT** | `16` | `0.00%` | `50.00%` | **`50.00%`** | `0.00%` | `0.00%` | `0.00%` | **`0.00%`** |
+| **`InDom-500` Single-Tool** | `250` | `55.60%` | `69.60%` | `71.60%` | **`71.60%`** | `70.40%` | `68.40%` | `70.80%` |
+| **`InDom-500` Multi-Tool ($\ge 2$)** | `250` | `48.80%` | **`59.60%`** | **`59.60%`** | `48.40%` | `54.80%` (`+6.4%` vs 2b) | `49.60%` | **`55.60%`** (`+6.0%` vs 3a) |
+| **`InDom-500` xLAM (Clean Types)** | `250` | `69.60%` | `82.80%` | **`83.60%`** | `80.80%` | **`82.40%`** | `79.20%` | **`82.80%`** |
+| **`InDom-500` ToolACE (Quoted Ints)** | `250` | `34.80%` | `46.40%` | **`47.60%`** | `39.20%` | `42.80%` | `38.80%` | **`43.60%`** |
+
+1. **Label Artifacts in `RLLA-80` (`16 / 80` Noisy GTs)**: Exactly 20% (`16/80`) of the original `RLLA-4k` test set contains corrupted Ground Truth annotations—either truncated unclosed JSON strings (e.g., `"[{"subject": "Math"`) or numbers wrapped in string quotes contradicting `type: integer` in the schema. `Pure SFT` memorizes these dataset-specific bugs from `train.parquet` (`50.0%` match on broken GTs), whereas `Pure RL` and `Cold-Start SFT + GRPO` always output syntactically valid, schema-typed JSON (`0.0%` on broken GTs).
+2. **Near-Parity on Clean In-Domain Schemas (`xLAM-250`)**: On the `250` unseen in-domain queries from `xLAM` (where Ground Truth strictly follows JSON Schema types), **`Pure RL (v2)` (`82.80%`) and `Cold-Start SFT + GRPO` (`82.40%`) virtually tie `Pure SFT` (`83.60%`)** without memorizing training strings!
+3. **Where Pure RL Beats Pure SFT Even on In-Domain Queries**: On tasks requiring **implicit arithmetic or interval reasoning** prior to parameter filling—such as computing zero-indexed pagination `skip = 20 - 1 = 19` (`rlla_test_20`) or inclusive count `80 - 70 + 1 = 11` (`rlla_test_55`)—`Pure RL` and `Cold-Start SFT + GRPO` achieve `1.0` Exact Match via `<think>` Chain-of-Thought, while `Pure SFT` blindly copies literal numbers (`20`, `10`) from the prompt (`0.0`).
+
+---
+
+## 4. Quantitative Error Taxonomy (`E1`–`E7`) & Failure Case Analysis
+
+To understand *how* each model fails rather than just reporting aggregate accuracy, `eval/analyze_error_taxonomy.py` classifies every non-exact prediction across all benchmarks into **7 mutually exclusive error categories**:
+- **`E1` Format / JSON Syntax Error**: Missing `<tool_call>` XML wrapper or unparseable JSON payload.
+- **`E2` Mode / Abstention Error**: Falsely refusing to call a tool (`<response>`) when a valid tool exists, or invoking a tool when abstention is required.
+- **`E3a` Wrong Tool Selection**: Selecting an incorrect tool name when call count matches.
+- **`E3b` Tool Call Count Error**: Emitting too few or too many parallel tool calls (e.g., calling 1 tool instead of 2).
+- **`E4` Missing Required Parameter Key**: Omitting a mandatory parameter specified in the tool schema.
+- **`E5` Hallucinated Extra Parameter Key**: Inventing or redundantly filling optional parameters not requested by the user.
+- **`E6` Parameter Value / Arithmetic Error**: Correct tool and keys, but wrong argument value (e.g., off-by-one arithmetic or string mismatch).
+- **`E7` Type / Quote Mismatch Only**: Semantic value is correct (`Schema-Normalized EM = 1.0`), but JSON data type differs (e.g., `"10"` vs `10`).
+
+<div align="center">
+  <img src="assets/fig4_reward_v2_staircase.png" width="98%" alt="Reward v2 Staircase & Quantitative Error Taxonomy"/>
+</div>
+
+### Error Taxonomy Breakdown Across Benchmarks (`eval/error_taxonomy_report.json`)
+
+#### A. Out-of-Domain `BFCL-v3 Standard` (`N = 1,000` Tool-Calling Queries)
+
+| Model | `CORRECT` (Strict EM) | `E1` Format/JSON | `E2` False Abstain | `E3a` Wrong Tool | `E3b` Call Count | `E4` Missing Key | `E5` Extra Key | `E6` Value Error | `E7` Type/Quote Only |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **`0. Zero-Shot Base`** | `695` (`69.5%`) | `8` | `2` | `8` | `150` | `4` | `0` | `102` | `31` |
+| **`1a. Pure SFT (1.0 Ep)`** | `602` (`60.2%`) | `6` | `0` | `2` | `32` | `69` | `2` | `141` | **`146`** |
+| **`1b. Pure SFT (2.0 Ep)`** | `604` (`60.4%`) | `14` | `2` | `3` | `28` | `52` | `2` | `158` | **`137`** |
+| **`2a. Full-SFT + GRPO`** | `595` (`59.5%`) | `14` | `2` | `3` | `25` | `55` | `2` | `164` | **`140`** |
+| **`2b. Cold-Start SFT (320)`** | `793` (`79.3%`) | `7` | `1` | `7` | `45` | `6` | `0` | `118` | `23` |
+| **`2c. Cold-Start SFT + GRPO`** | **`812` (`81.2%`)** | **`4`** | **`0`** | **`6`** | `27` (`-40%` vs 2b) | **`6`** | `1` | `126` | **`18`** |
+| **`3a. Pure RL (4.0 Ep, v1)`** | `797` (`79.7%`) | `5` | `2` | `8` | `28` | `6` | `0` | `130` | `24` |
+| **`3b. Pure RL (8.0 Ep, v2)`** | **`815` (`81.5%`)** | `5` | `2` | `7` | **`18`** (`-36%` vs 3a) | `8` | `1` | **`125`** | `19` |
+
+#### B. Out-of-Domain `BFCL-v3 Live` (`N = 1,351` Real-World Multi-Candidate Queries)
+
+| Model | `CORRECT` (Strict EM) | `E1` Format/JSON | `E2` False Abstain | `E3a` Wrong Tool | `E3b` Call Count | `E4` Missing Key | `E5` Extra Key | `E6` Value Error | `E7` Type/Quote Only |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **`0. Zero-Shot Base`** | `781` (`57.8%`) | `3` | `3` | `57` | `21` | `32` | `17` | `357` | `80` |
+| **`1a. Pure SFT (1.0 Ep)`** | `712` (`52.7%`) | `14` | `5` | `27` | `22` | `86` | `10` | `293` | **`182`** |
+| **`1b. Pure SFT (2.0 Ep)`** | `666` (`49.3%`) | `11` | **`49` (`9.8×` surge)** | `25` | `21` | `66` | `11` | `318` | **`184`** |
+| **`2c. Cold-Start SFT + GRPO`** | **`797` (`59.0%`)** | **`1`** | **`0`** | **`47`** | `27` | `48` | **`13`** | `334` | `84` |
+| **`3b. Pure RL (8.0 Ep, v2)`** | `794` (`58.8%`) | **`1`** | `3` | `50` | `29` | `49` | `15` | **`318`** | `92` |
+
+#### C. Strictly In-Domain `Expanded In-Domain 500` (`N = 500` Unseen Queries)
+
+| Model | `CORRECT` (Strict EM) | `E1` Format/JSON | `E2` Mode Error | `E3a` Wrong Tool | `E3b` Call Count | `E4` Missing Key | `E5` Extra Key | `E6` Value Error | `E7` Type/Quote Only |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **`0. Zero-Shot Base`** | `261` (`52.2%`) | **`235` (No XML)** | `0` | `0` | `0` | `0` | `0` | `0` | `4` |
+| **`1b. Pure SFT (2.0 Ep)`** | **`328` (`65.6%`)** | `3` | `5` | `1` | `15` | `35` | `14` | **`78`** | `21` |
+| **`2b. Cold-Start SFT (320)`** | `300` (`60.0%`) | `15` | `1` | `3` | `29` | `7` | `49` | `93` | `2` |
+| **`2c. Cold-Start SFT + GRPO`** | `313` (`62.6%`) | `15` | `1` | `3` | `21` (`-28%`) | `9` | `39` (`-20%`) | `97` | `2` |
+| **`3a. Pure RL (4.0 Ep, v1)`** | `295` (`59.0%`) | `16` | `1` | `6` | `21` | `8` | `50` | `100` | `3` |
+| **`3b. Pure RL (8.0 Ep, v2)`** | `316` (`63.2%`) | `16` | `0` | `4` | `19` | `11` | **`36` (`-28%`)** | `98` | **`0`** |
+
+### Three Key Insights from the Error Taxonomy
+1. **Why SFT Collapses on OOD (`E7` Type Contamination + `E4` Missing Keys + `E2` False Abstention)**:
+   - On `BFCL-v3 (1k)`, `Pure SFT` commits **`137–146` `E7` Type/Quote errors** (`7.6×` more than `Pure RL`'s `18–19` cases) and **`52–69` `E4` Missing Required Key errors** (`8×` more than `Pure RL`'s `6–8` cases). Without `<think>` verification, SFT skips mandatory parameters and quotes integers/booleans as strings.
+   - On `BFCL-Live (1,351)`, over-training SFT from `1.0 Ep` to `2.0 Ep` causes **`E2` False Abstention errors to jump from `5` to `49` (`9.8×`)**, explaining the `-3.40%` OOD drop!
+2. **How `v2` Anti-Hacking Reward Improves Pure RL (`E5` & `E3b` Reduction)**:
+   - Upgrading from `rlla_reward.py (v1)` to `rlla_reward_v2.py (v2)` reduces **`E5` Hallucinated Extra Parameter Keys** on `In-Domain 500` from `50` $\rightarrow$ `36` (`-28%`) and reduces **`E3b` Tool Call Count Errors** on `BFCL-v3` from `28` $\rightarrow$ `18` (`-36%`).
+3. **How GRPO Improves Cold-Start SFT (`2b` $\rightarrow$ `2c`)**:
+   - Adding GRPO (`v2`) on top of `Cold-Start SFT (320)` cuts `E3b` Multi-Tool Count Errors by **`-40%` (`45` $\rightarrow$ `27`)** on `BFCL-v3` and cuts `E5` Extra-Key Errors by **`-20%` (`49` $\rightarrow$ `39`)** on `In-Domain 500`, proving that GRPO actively refines multi-tool composition and parameter precision when policy entropy is preserved.
+
+---
+
+## 5. Repository Structure & Quick Reproduction
 
 ```text
 agent-rl-lab/
-├── assets/                                  # Figures (English fig*.png & Chinese fig*_zh.png)
-├── docs/
-│   ├── SFT_vs_RL_Tool_Use_Deep_Dive.md      # Full Technical Report (English)
-│   └── SFT_vs_RL_Tool_Use_Deep_Dive_zh.md   # Full Technical Report (Chinese)
+├── README.md                                  # English primary documentation
+├── README_zh.md                               # Chinese documentation (简体中文)
+├── assets/                                    # 300-DPI bilingual figures (fig1..4.png & fig1..4_zh.png)
 ├── configs/
-│   ├── sft_qwen3_4b_base_rlla.yaml          # LLaMA-Factory Full SFT config
-│   └── sft_coldstart_qwen3_4b_base_rlla.yaml# 320-sample Rejection-Sampled Cold-Start SFT config
+│   ├── sft_rlla_qwen3_4b_ep2.yaml             # Stage 1: Full-SFT config (3,920 samples, eval every epoch)
+│   └── sft_coldstart_320_qwen3_4b_ep1.yaml    # Stage 3: Cold-Start SFT config (320 genuine-CoT samples, 1 Ep)
+├── data/
+│   ├── rlla_4k/                               # RLLA-4k train (3,920), test (80), & test_indomain_500.parquet (500)
+│   └── sft_coldstart_320/                     # 320 rejection-sampled genuine-CoT trajectories for Cold-Start SFT
+├── docs/
+│   ├── SFT_vs_RL_Tool_Use_Deep_Dive.md        # Comprehensive technical report (English)
+│   └── SFT_vs_RL_Tool_Use_Deep_Dive_zh.md     # Comprehensive technical report (Chinese)
+├── eval/
+│   ├── run_multi_benchmark_eval.py            # Evaluator for RLLA-4k (80) + BFCL-v3 Standard (1,240)
+│   ├── run_expanded_indomain_eval.py          # Evaluator for Expanded In-Domain Test Set (500)
+│   ├── run_bfcl_live_eval.py                  # Evaluator for BFCL-v3 Live (1,351)
+│   ├── summarize_multi_benchmark.py           # Unified 8-model x 4-suite report generator
+│   ├── analyze_error_taxonomy.py              # 7-category Error Taxonomy (E1-E7) analyzer
+│   ├── multi_benchmark_report.json            # Full machine-readable metrics for all 8 models
+│   └── error_taxonomy_report.json             # Full machine-readable error taxonomy counts
 ├── rewards/
-│   ├── rlla_reward.py                       # Baseline ToolRL rule-based reward (v1)
-│   └── rlla_reward_v2.py                    # Upgraded reward with anti-reward-hacking (v2)
-├── scripts/
-│   ├── download_rlla4k.sh                   # Download RLLA-4k dataset
-│   ├── prepare_qwen3_base_tokenizer.py      # Strip untrained special tokens & align EOS
-│   ├── prepare_sft_data.py                  # Convert Parquet to ShareGPT JSON with reward check
-│   ├── build_coldstart_sft_data.py          # Distill 320 genuine-CoT cold-start trajectories
-│   ├── run_sft_rlla.sh                      # Launch Full SFT (8x GPU DeepSpeed ZeRO-2)
-│   ├── run_sft_coldstart_rlla.sh            # Launch Cold-Start SFT
-│   ├── run_grpo_rlla.sh                     # Launch VeRL GRPO training (v1)
-│   ├── run_grpo_rlla_v2.sh                  # Launch VeRL GRPO continuation (v2 reward)
-│   └── generate_github_figures.py           # Reproduce all figures in assets/
-└── eval/
-    ├── compare_models.py                    # In-domain RLLA-4k evaluation
-    ├── run_multi_benchmark_eval.py          # Joint evaluation on RLLA-4k + BFCL-v3 (1,320 samples)
-    ├── run_bfcl_live_eval.py                # Evaluation on BFCL-v3 Live (1,351 samples)
-    ├── summarize_multi_benchmark.py         # Aggregate JSON & Markdown evaluation reports
-    ├── multi_benchmark_report.md            # Detailed benchmark breakdown table
-    └── rlla4k_model_comparison.json         # Per-category RLLA-4k metrics
+│   ├── rlla_reward.py                         # Stage 2a: Initial dense tool-calling reward function (v1)
+│   └── rlla_reward_v2.py                      # Stage 2b & 3: Anti-reward-hacking reward function (v2)
+└── scripts/
+    ├── prepare_model_and_data.py              # Vocabulary strip & RLLA-4k Parquet/ShareGPT preprocessing
+    ├── build_expanded_indomain_test.py        # Builds 500-sample AST-verified strictly In-Domain test set
+    ├── run_sft_rlla.sh                        # Launch LLaMA-Factory SFT
+    ├── run_grpo_rlla.sh                       # Launch multi-node VeRL GRPO (v1 reward)
+    ├── run_grpo_rlla_v2_8ep.sh                # Launch multi-node VeRL GRPO (v2 reward, Pure RL & Cold-Start SFT+RL)
+    └── generate_github_figures.py             # Re-generate all English & Chinese figures from logs/metrics
+```
+
+### Quick Start Commands
+
+```bash
+# 1. Prepare Clean Base Model & Datasets (including 500-sample Expanded In-Domain Test Set)
+python scripts/prepare_model_and_data.py
+python scripts/build_expanded_indomain_test.py
+
+# 2. Stage 1: Run Full SFT (select checkpoint-62 @ 1.0 Ep for min eval_loss, or checkpoint-124 @ 2.0 Ep)
+bash scripts/run_sft_rlla.sh
+
+# 3. Stage 2: Run Pure RL (Zero-RL GRPO with v1 -> v2 Anti-Reward-Hacking)
+bash scripts/run_grpo_rlla.sh
+bash scripts/run_grpo_rlla_v2_8ep.sh
+
+# 4. Stage 3: Run Cold-Start SFT (320 Genuine-CoT, 1 Ep) + GRPO (v2 Reward)
+llamafactory-cli train configs/sft_coldstart_320_qwen3_4b_ep1.yaml
+INIT_MODEL=outputs/sft/sft-coldstart320-Qwen3-4B-Base-rlla-ep1 bash scripts/run_grpo_rlla_v2_8ep.sh
+
+# 5. Evaluate All 8 Models Across All 4 Benchmark Suites (N = 3,171) & Generate Error Taxonomy
+python eval/summarize_multi_benchmark.py
+python eval/analyze_error_taxonomy.py
+python scripts/generate_github_figures.py
 ```
 
 ---
 
-## 4. Quick Start
+## License
 
-### 4.1 Environment & Tokenizer Preparation
-
-```bash
-# 1. Download RLLA-4k dataset
-bash scripts/download_rlla4k.sh
-
-# 2. Build patched Qwen3-4B-Base-rlla tokenizer
-python3 scripts/prepare_qwen3_base_tokenizer.py
-
-# 3. Convert SFT data and run 100% reward verification
-python3 scripts/prepare_sft_data.py
-```
-
-### 4.2 Train with VeRL GRPO (Pure RL)
-
-```bash
-# Stage 1: Zero-RL GRPO from Base (4 Epochs)
-bash scripts/run_grpo_rlla.sh
-
-# Stage 2: Continuation with anti-reward-hacking v2 reward
-bash scripts/run_grpo_rlla_v2.sh
-```
-
-### 4.3 Train with LLaMA-Factory (Full SFT / Cold-Start SFT)
-
-```bash
-# Option A: Full 2-Epoch SFT (8 GPUs, ~10 mins)
-bash scripts/run_sft_rlla.sh
-
-# Option B: 320-Sample Genuine-CoT Cold-Start SFT (8 GPUs, ~1 min)
-python3 scripts/build_coldstart_sft_data.py
-bash scripts/run_sft_coldstart_rlla.sh
-```
-
-### 4.4 Evaluate Across All Three Benchmarks (2,431 Samples)
-
-```bash
-# Evaluate on RLLA-4k (80) + BFCL-v3 Standard (1,240)
-python3 eval/run_multi_benchmark_eval.py
-python3 eval/summarize_multi_benchmark.py
-
-# Evaluate on BFCL-v3 Live (1,351)
-python3 eval/run_bfcl_live_eval.py
-```
+This project is released under the [Apache-2.0 License](LICENSE).

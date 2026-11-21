@@ -15,6 +15,7 @@ ckpts/
 logs/
 eval/multi_bench_dumps/
 eval/live_bench_dumps/
+eval/indomain500_dumps/
 tensorboard_log/
 wandb/
 .archify/

@@ -1,0 +1,357 @@
+{
+  "model0_zeroshot_base": {
+    "label": "0. Zero-Shot Base",
+    "rlla_80": {
+      "E7_Type_Quote_Mismatch_Only": 5,
+      "E2_False_Tool_Invocation_Error": 5,
+      "E1_Format_or_JSON_Syntax_Error": 35,
+      "CORRECT": 35
+    },
+    "indomain_500": {
+      "E1_Format_or_JSON_Syntax_Error": 235,
+      "CORRECT": 261,
+      "E7_Type_Quote_Mismatch_Only": 4
+    },
+    "bfcl_1000": {
+      "CORRECT": 695,
+      "E4_Missing_Required_Param_Key": 4,
+      "E6_Param_Value_or_Arithmetic_Error": 102,
+      "E7_Type_Quote_Mismatch_Only": 31,
+      "E1_Format_or_JSON_Syntax_Error": 8,
+      "E2_False_Abstention_Mode_Error": 2,
+      "E3a_Wrong_Tool_Selection": 8,
+      "E3b_Tool_Call_Count_Error": 150
+    },
+    "bfcl_live_1351": {
+      "CORRECT": 781,
+      "E7_Type_Quote_Mismatch_Only": 80,
+      "E6_Param_Value_or_Arithmetic_Error": 357,
+      "E5_Hallucinated_Extra_Param_Key": 17,
+      "E2_False_Abstention_Mode_Error": 3,
+      "E1_Format_or_JSON_Syntax_Error": 3,
+      "E4_Missing_Required_Param_Key": 32,
+      "E3b_Tool_Call_Count_Error": 21,
+      "E3a_Wrong_Tool_Selection": 57
+    }
+  },
+  "model2a_pure_sft_ep1": {
+    "label": "1a. Pure SFT (1.0 Ep, Min Eval-Loss)",
+    "rlla_80": {
+      "CORRECT": 59,
+      "E1_Format_or_JSON_Syntax_Error": 3,
+      "E6_Param_Value_or_Arithmetic_Error": 11,
+      "E4_Missing_Required_Param_Key": 3,
+      "E7_Type_Quote_Mismatch_Only": 1,
+      "E3a_Wrong_Tool_Selection": 1,
+      "E3b_Tool_Call_Count_Error": 1,
+      "E5_Hallucinated_Extra_Param_Key": 1
+    },
+    "indomain_500": {
+      "E3b_Tool_Call_Count_Error": 18,
+      "CORRECT": 323,
+      "E6_Param_Value_or_Arithmetic_Error": 83,
+      "E1_Format_or_JSON_Syntax_Error": 7,
+      "E7_Type_Quote_Mismatch_Only": 22,
+      "E5_Hallucinated_Extra_Param_Key": 11,
+      "E4_Missing_Required_Param_Key": 33,
+      "E3a_Wrong_Tool_Selection": 2,
+      "E2_False_Abstention_Mode_Error": 1
+    },
+    "bfcl_1000": {
+      "CORRECT": 602,
+      "E4_Missing_Required_Param_Key": 69,
+      "E6_Param_Value_or_Arithmetic_Error": 141,
+      "E7_Type_Quote_Mismatch_Only": 146,
+      "E1_Format_or_JSON_Syntax_Error": 6,
+      "E3a_Wrong_Tool_Selection": 2,
+      "E3b_Tool_Call_Count_Error": 32,
+      "E5_Hallucinated_Extra_Param_Key": 2
+    },
+    "bfcl_live_1351": {
+      "CORRECT": 712,
+      "E7_Type_Quote_Mismatch_Only": 182,
+      "E6_Param_Value_or_Arithmetic_Error": 293,
+      "E2_False_Abstention_Mode_Error": 5,
+      "E5_Hallucinated_Extra_Param_Key": 10,
+      "E1_Format_or_JSON_Syntax_Error": 14,
+      "E4_Missing_Required_Param_Key": 86,
+      "E3b_Tool_Call_Count_Error": 22,
+      "E3a_Wrong_Tool_Selection": 27
+    }
+  },
+  "model2_pure_sft_ep2": {
+    "label": "1b. Pure SFT (2.0 Ep, Min Train-Loss)",
+    "rlla_80": {
+      "CORRECT": 59,
+      "E1_Format_or_JSON_Syntax_Error": 2,
+      "E6_Param_Value_or_Arithmetic_Error": 10,
+      "E4_Missing_Required_Param_Key": 4,
+      "E3b_Tool_Call_Count_Error": 1,
+      "E2_False_Abstention_Mode_Error": 1,
+      "E7_Type_Quote_Mismatch_Only": 1,
+      "E3a_Wrong_Tool_Selection": 1,
+      "E5_Hallucinated_Extra_Param_Key": 1
+    },
+    "indomain_500": {
+      "E3b_Tool_Call_Count_Error": 15,
+      "CORRECT": 328,
+      "E6_Param_Value_or_Arithmetic_Error": 78,
+      "E7_Type_Quote_Mismatch_Only": 21,
+      "E5_Hallucinated_Extra_Param_Key": 14,
+      "E3a_Wrong_Tool_Selection": 1,
+      "E1_Format_or_JSON_Syntax_Error": 3,
+      "E4_Missing_Required_Param_Key": 35,
+      "E2_False_Abstention_Mode_Error": 5
+    },
+    "bfcl_1000": {
+      "CORRECT": 604,
+      "E4_Missing_Required_Param_Key": 52,
+      "E6_Param_Value_or_Arithmetic_Error": 158,
+      "E7_Type_Quote_Mismatch_Only": 137,
+      "E1_Format_or_JSON_Syntax_Error": 14,
+      "E2_False_Abstention_Mode_Error": 2,
+      "E3a_Wrong_Tool_Selection": 3,
+      "E3b_Tool_Call_Count_Error": 28,
+      "E5_Hallucinated_Extra_Param_Key": 2
+    },
+    "bfcl_live_1351": {
+      "CORRECT": 666,
+      "E7_Type_Quote_Mismatch_Only": 184,
+      "E6_Param_Value_or_Arithmetic_Error": 318,
+      "E1_Format_or_JSON_Syntax_Error": 11,
+      "E2_False_Abstention_Mode_Error": 49,
+      "E5_Hallucinated_Extra_Param_Key": 11,
+      "E3b_Tool_Call_Count_Error": 21,
+      "E4_Missing_Required_Param_Key": 66,
+      "E3a_Wrong_Tool_Selection": 25
+    }
+  },
+  "model3_sft_plus_rl_step120": {
+    "label": "2a. Full-SFT (2Ep) + GRPO (Negative Control)",
+    "rlla_80": {
+      "CORRECT": 58,
+      "E7_Type_Quote_Mismatch_Only": 2,
+      "E1_Format_or_JSON_Syntax_Error": 2,
+      "E6_Param_Value_or_Arithmetic_Error": 10,
+      "E4_Missing_Required_Param_Key": 4,
+      "E3b_Tool_Call_Count_Error": 1,
+      "E2_False_Abstention_Mode_Error": 1,
+      "E3a_Wrong_Tool_Selection": 1,
+      "E5_Hallucinated_Extra_Param_Key": 1
+    },
+    "indomain_500": {
+      "E3b_Tool_Call_Count_Error": 15,
+      "CORRECT": 326,
+      "E6_Param_Value_or_Arithmetic_Error": 79,
+      "E7_Type_Quote_Mismatch_Only": 22,
+      "E5_Hallucinated_Extra_Param_Key": 14,
+      "E3a_Wrong_Tool_Selection": 1,
+      "E1_Format_or_JSON_Syntax_Error": 4,
+      "E4_Missing_Required_Param_Key": 35,
+      "E2_False_Abstention_Mode_Error": 4
+    },
+    "bfcl_1000": {
+      "CORRECT": 595,
+      "E4_Missing_Required_Param_Key": 55,
+      "E6_Param_Value_or_Arithmetic_Error": 163,
+      "E7_Type_Quote_Mismatch_Only": 141,
+      "E1_Format_or_JSON_Syntax_Error": 14,
+      "E2_False_Abstention_Mode_Error": 2,
+      "E3a_Wrong_Tool_Selection": 3,
+      "E3b_Tool_Call_Count_Error": 25,
+      "E5_Hallucinated_Extra_Param_Key": 2
+    },
+    "bfcl_live_1351": {
+      "CORRECT": 666,
+      "E7_Type_Quote_Mismatch_Only": 186,
+      "E6_Param_Value_or_Arithmetic_Error": 326,
+      "E1_Format_or_JSON_Syntax_Error": 13,
+      "E2_False_Abstention_Mode_Error": 38,
+      "E5_Hallucinated_Extra_Param_Key": 13,
+      "E4_Missing_Required_Param_Key": 64,
+      "E3b_Tool_Call_Count_Error": 21,
+      "E3a_Wrong_Tool_Selection": 24
+    }
+  },
+  "model4_coldstart_sft320_ep1": {
+    "label": "2b. Cold-Start SFT (320, 1.0 Ep)",
+    "rlla_80": {
+      "E7_Type_Quote_Mismatch_Only": 5,
+      "E2_False_Tool_Invocation_Error": 3,
+      "E3b_Tool_Call_Count_Error": 4,
+      "E6_Param_Value_or_Arithmetic_Error": 15,
+      "CORRECT": 39,
+      "E1_Format_or_JSON_Syntax_Error": 4,
+      "E3a_Wrong_Tool_Selection": 2,
+      "E4_Missing_Required_Param_Key": 2,
+      "E5_Hallucinated_Extra_Param_Key": 6
+    },
+    "indomain_500": {
+      "E3b_Tool_Call_Count_Error": 29,
+      "E6_Param_Value_or_Arithmetic_Error": 93,
+      "CORRECT": 300,
+      "E5_Hallucinated_Extra_Param_Key": 49,
+      "E1_Format_or_JSON_Syntax_Error": 16,
+      "E4_Missing_Required_Param_Key": 7,
+      "E3a_Wrong_Tool_Selection": 3,
+      "E7_Type_Quote_Mismatch_Only": 2,
+      "E2_False_Abstention_Mode_Error": 1
+    },
+    "bfcl_1000": {
+      "CORRECT": 793,
+      "E4_Missing_Required_Param_Key": 6,
+      "E6_Param_Value_or_Arithmetic_Error": 118,
+      "E7_Type_Quote_Mismatch_Only": 23,
+      "E1_Format_or_JSON_Syntax_Error": 7,
+      "E2_False_Abstention_Mode_Error": 1,
+      "E3a_Wrong_Tool_Selection": 7,
+      "E3b_Tool_Call_Count_Error": 45
+    },
+    "bfcl_live_1351": {
+      "CORRECT": 796,
+      "E7_Type_Quote_Mismatch_Only": 82,
+      "E6_Param_Value_or_Arithmetic_Error": 350,
+      "E5_Hallucinated_Extra_Param_Key": 15,
+      "E1_Format_or_JSON_Syntax_Error": 2,
+      "E4_Missing_Required_Param_Key": 30,
+      "E3b_Tool_Call_Count_Error": 22,
+      "E3a_Wrong_Tool_Selection": 54
+    }
+  },
+  "model6_coldstart_sft_plus_rl_step100": {
+    "label": "2c. Cold-Start SFT (320) + GRPO (Positive Control)",
+    "rlla_80": {
+      "E7_Type_Quote_Mismatch_Only": 6,
+      "E2_False_Tool_Invocation_Error": 3,
+      "E3b_Tool_Call_Count_Error": 2,
+      "E6_Param_Value_or_Arithmetic_Error": 16,
+      "CORRECT": 40,
+      "E3a_Wrong_Tool_Selection": 2,
+      "E4_Missing_Required_Param_Key": 2,
+      "E5_Hallucinated_Extra_Param_Key": 6,
+      "E1_Format_or_JSON_Syntax_Error": 3
+    },
+    "indomain_500": {
+      "CORRECT": 313,
+      "E6_Param_Value_or_Arithmetic_Error": 97,
+      "E1_Format_or_JSON_Syntax_Error": 15,
+      "E5_Hallucinated_Extra_Param_Key": 39,
+      "E3b_Tool_Call_Count_Error": 21,
+      "E4_Missing_Required_Param_Key": 9,
+      "E3a_Wrong_Tool_Selection": 3,
+      "E7_Type_Quote_Mismatch_Only": 2,
+      "E2_False_Abstention_Mode_Error": 1
+    },
+    "bfcl_1000": {
+      "CORRECT": 812,
+      "E4_Missing_Required_Param_Key": 6,
+      "E6_Param_Value_or_Arithmetic_Error": 126,
+      "E7_Type_Quote_Mismatch_Only": 18,
+      "E1_Format_or_JSON_Syntax_Error": 4,
+      "E3b_Tool_Call_Count_Error": 27,
+      "E3a_Wrong_Tool_Selection": 6,
+      "E5_Hallucinated_Extra_Param_Key": 1
+    },
+    "bfcl_live_1351": {
+      "CORRECT": 797,
+      "E7_Type_Quote_Mismatch_Only": 84,
+      "E6_Param_Value_or_Arithmetic_Error": 334,
+      "E5_Hallucinated_Extra_Param_Key": 13,
+      "E4_Missing_Required_Param_Key": 48,
+      "E3b_Tool_Call_Count_Error": 27,
+      "E1_Format_or_JSON_Syntax_Error": 1,
+      "E3a_Wrong_Tool_Selection": 47
+    }
+  },
+  "model1_pure_rl_step120": {
+    "label": "3a. Pure RL (4.0 Ep, v1 Reward)",
+    "rlla_80": {
+      "E7_Type_Quote_Mismatch_Only": 5,
+      "E2_False_Tool_Invocation_Error": 2,
+      "E6_Param_Value_or_Arithmetic_Error": 16,
+      "CORRECT": 43,
+      "E3a_Wrong_Tool_Selection": 2,
+      "E3b_Tool_Call_Count_Error": 3,
+      "E4_Missing_Required_Param_Key": 2,
+      "E5_Hallucinated_Extra_Param_Key": 6,
+      "E1_Format_or_JSON_Syntax_Error": 1
+    },
+    "indomain_500": {
+      "E6_Param_Value_or_Arithmetic_Error": 100,
+      "CORRECT": 295,
+      "E1_Format_or_JSON_Syntax_Error": 16,
+      "E5_Hallucinated_Extra_Param_Key": 50,
+      "E3b_Tool_Call_Count_Error": 21,
+      "E4_Missing_Required_Param_Key": 8,
+      "E3a_Wrong_Tool_Selection": 6,
+      "E7_Type_Quote_Mismatch_Only": 3,
+      "E2_False_Abstention_Mode_Error": 1
+    },
+    "bfcl_1000": {
+      "CORRECT": 797,
+      "E4_Missing_Required_Param_Key": 6,
+      "E6_Param_Value_or_Arithmetic_Error": 130,
+      "E7_Type_Quote_Mismatch_Only": 24,
+      "E1_Format_or_JSON_Syntax_Error": 5,
+      "E2_False_Abstention_Mode_Error": 2,
+      "E3b_Tool_Call_Count_Error": 28,
+      "E3a_Wrong_Tool_Selection": 8
+    },
+    "bfcl_live_1351": {
+      "CORRECT": 788,
+      "E7_Type_Quote_Mismatch_Only": 89,
+      "E6_Param_Value_or_Arithmetic_Error": 341,
+      "E5_Hallucinated_Extra_Param_Key": 18,
+      "E2_False_Abstention_Mode_Error": 2,
+      "E1_Format_or_JSON_Syntax_Error": 2,
+      "E4_Missing_Required_Param_Key": 29,
+      "E3b_Tool_Call_Count_Error": 30,
+      "E3a_Wrong_Tool_Selection": 52
+    }
+  },
+  "model5_purerl_v2_ep8_step120": {
+    "label": "3b. Pure RL (8.0 Ep, v2 Reward)",
+    "rlla_80": {
+      "E7_Type_Quote_Mismatch_Only": 4,
+      "E2_False_Tool_Invocation_Error": 2,
+      "E6_Param_Value_or_Arithmetic_Error": 15,
+      "CORRECT": 45,
+      "E3a_Wrong_Tool_Selection": 2,
+      "E3b_Tool_Call_Count_Error": 2,
+      "E4_Missing_Required_Param_Key": 2,
+      "E5_Hallucinated_Extra_Param_Key": 7,
+      "E1_Format_or_JSON_Syntax_Error": 1
+    },
+    "indomain_500": {
+      "CORRECT": 316,
+      "E6_Param_Value_or_Arithmetic_Error": 98,
+      "E1_Format_or_JSON_Syntax_Error": 16,
+      "E5_Hallucinated_Extra_Param_Key": 36,
+      "E3b_Tool_Call_Count_Error": 19,
+      "E4_Missing_Required_Param_Key": 11,
+      "E3a_Wrong_Tool_Selection": 4
+    },
+    "bfcl_1000": {
+      "CORRECT": 815,
+      "E4_Missing_Required_Param_Key": 8,
+      "E6_Param_Value_or_Arithmetic_Error": 125,
+      "E7_Type_Quote_Mismatch_Only": 19,
+      "E1_Format_or_JSON_Syntax_Error": 5,
+      "E2_False_Abstention_Mode_Error": 2,
+      "E3b_Tool_Call_Count_Error": 18,
+      "E3a_Wrong_Tool_Selection": 7,
+      "E5_Hallucinated_Extra_Param_Key": 1
+    },
+    "bfcl_live_1351": {
+      "CORRECT": 794,
+      "E7_Type_Quote_Mismatch_Only": 92,
+      "E6_Param_Value_or_Arithmetic_Error": 318,
+      "E5_Hallucinated_Extra_Param_Key": 15,
+      "E2_False_Abstention_Mode_Error": 3,
+      "E4_Missing_Required_Param_Key": 49,
+      "E3b_Tool_Call_Count_Error": 29,
+      "E1_Format_or_JSON_Syntax_Error": 1,
+      "E3a_Wrong_Tool_Selection": 50
+    }
+  }
+}

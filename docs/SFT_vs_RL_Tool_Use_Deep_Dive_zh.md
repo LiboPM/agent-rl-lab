@@ -1,6 +1,15 @@
+<div align="center">
+
 # 工具调用场景下 SFT 与 RL 的效果边界分析：基于 RLLA-4k 与 BFCL-v3 的对照实验报告
 
-[English](SFT_vs_RL_Tool_Use_Deep_Dive.md) | **简体中文**
+[![English](https://img.shields.io/badge/Report-English-2563eb?style=for-the-badge)](SFT_vs_RL_Tool_Use_Deep_Dive.md)
+[![简体中文](https://img.shields.io/badge/技术报告-简体中文-059669?style=for-the-badge)](SFT_vs_RL_Tool_Use_Deep_Dive_zh.md)
+
+[**English Version**](SFT_vs_RL_Tool_Use_Deep_Dive.md) &nbsp;|&nbsp; [**简体中文 (当前)**](SFT_vs_RL_Tool_Use_Deep_Dive_zh.md)
+
+</div>
+
+---
 
 ## 摘要
 
@@ -21,7 +30,7 @@
 - **BFCL-v3 Standard（1,000 题，域外标准集 Out-of-Domain）**：UC Berkeley Function Calling 评测基准（包含 `Simple 400`、`Multiple 200`、`Parallel 200`、`Parallel-Multiple 200`），测试集中的 API 在训练集中均未出现。
 - **BFCL-v3 Live（1,351 题，域外真实请求集 Out-of-Domain）**：来自真实线上用户的工具调用请求，单题通常包含 10~20 个相似候选工具，Prompt 较长。
 
-![In-Domain Memorization (SFT) vs. Out-of-Domain Generalization (RL)](../assets/fig1_sft_vs_rl_overview.png)
+![SFT 与 RL 在三个评测集上的准确率对比](../assets/fig1_sft_vs_rl_overview_zh.png)
 
 | 模型配置 | 训练耗时与算力 | `RLLA-4k` 域内测试集<br>（全集 80题 / 正常样本 64题） | `BFCL-v3` 域外标准集<br>（1,000题 · Strict / Norm EM） | `BFCL-Live` 真实请求集<br>（1,351题 · Strict / Norm EM） | 有效 CoT 占比 |
 | :--- | :---: | :---: | :---: | :---: | :---: |
@@ -47,7 +56,7 @@
 
 为分析 Pure RL 在 `BFCL-v3` 上达到 `81.50%` 而在域内 `RLLA-4k` 全集上仅为 `57.50%` 的原因，我们对 `RLLA-4k` 的 3,920 条训练集和 80 条测试集进行了语法与 Schema 一致性检查。
 
-![In-Domain Label Quality Audit & Out-of-Domain Complexity Scaling](../assets/fig3_deep_dive_clean_dirty_and_bfcl.png)
+![RLLA-4k 标注质量拆分与 BFCL-v3 各子集表现对比](../assets/fig3_deep_dive_clean_dirty_and_bfcl_zh.png)
 
 ### 2.1 RLLA-4k 中的标注异常样本
 `RLLA-4k` 数据集由 ToolACE、xLAM 和 Hammer 转换而来。原数据集在转换嵌套参数时使用了简单的 `.split(",")` 切分，导致部分 Ground Truth 存在两类缺陷（测试集共 16/80 题，占比 20%）：
@@ -95,7 +104,7 @@
 
 在 `Model 2 (Full-SFT + RL)` 实验中，先在 3,920 条训练集上进行 2 Epochs 全参 SFT，随后接续 150 步 GRPO 训练，验证集平均奖励停留在 `+2.9558 -> +2.9370`。
 
-![Training Dynamics: Pure RL vs. Full-SFT + GRPO](../assets/fig2_training_dynamics_entropy_collapse.png)
+![Pure RL 与 Full-SFT + GRPO 的训练过程对比](../assets/fig2_training_dynamics_entropy_collapse_zh.png)
 
 1. **SFT 与 RL 对 `<think>` 处理机制的差异**：`RLLA-4k` 原始训练集的全部 3,920 条样本中，标准答案的 `<think>` 字段均为同一句固定模板。SFT 将模板句作为 Token 级监督目标，训练 2 Epochs 后模型策略熵（`actor/entropy`）从 `0.72` 降至 `0.08`，有效 CoT 占比降至 `0.0%`；而 Pure RL 的奖励函数仅校验 `<tool_call>` 内的 JSON，忽略标准答案中的模板 `<think>`，使模型保留了自身的真实推理链（`98.8%`）。
 2. **策略熵坍缩导致 GRPO 优势梯度归零**：在策略熵降至 `0.08` 后，同一 Prompt 下的 $G=8$ 次采样输出完全一致，组内奖励标准差 $\text{std}(r) = 0$，导致优势函数 $A_i = 0$、梯度归零（训练 120 步后 75/80 题输出与 Step 0 完全相同）。
@@ -104,7 +113,7 @@
 
 ## 5. 细粒度奖励函数设计与无 GT 场景扩展
 
-![Dense Reward Shaping & Anti-Reward-Hacking Design](../assets/fig4_reward_v2_staircase.png)
+![rlla_reward_v2.py 的分段奖励函数设计](../assets/fig4_reward_v2_staircase_zh.png)
 
 ### 5.1 抑制 Reward Hacking（`rewards/rlla_reward_v2.py`）
 1. **冗余参数惩罚（Extra-Key Penalty, `-0.75 / key`）**：对预测结果中多出的非 Ground Truth 参数键每个扣减 `0.75` 分，消除模型通过填满所有可选参数博取命中率的行为。

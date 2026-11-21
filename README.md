@@ -1,10 +1,17 @@
+<div align="center">
+
 # Agent-RL-Lab: Tool-Use SFT vs. RL (VeRL GRPO + LLaMA-Factory)
 
-**English** | [简体中文](README_zh.md)
+**An Empirical Study & Reproducible Pipeline on Function Calling Memorization vs. Generalization**
 
-An empirical study and reproducible training pipeline comparing **Supervised Fine-Tuning (LLaMA-Factory)** and **Reinforcement Learning with Verifiable Rewards (VeRL / GRPO)** for LLM Function Calling and Tool Use.
+[![English](https://img.shields.io/badge/Language-English-2563eb?style=for-the-badge)](README.md)
+[![简体中文](https://img.shields.io/badge/语言-简体中文-059669?style=for-the-badge)](README_zh.md)
+[![Technical Report (EN)](https://img.shields.io/badge/Report-English-475569?style=for-the-badge)](docs/SFT_vs_RL_Tool_Use_Deep_Dive.md)
+[![技术报告 (中文)](https://img.shields.io/badge/技术报告-中文版-475569?style=for-the-badge)](docs/SFT_vs_RL_Tool_Use_Deep_Dive_zh.md)
 
-- **Full Technical Report**: [English (`docs/SFT_vs_RL_Tool_Use_Deep_Dive.md`)](docs/SFT_vs_RL_Tool_Use_Deep_Dive.md) | [简体中文 (`docs/SFT_vs_RL_Tool_Use_Deep_Dive_zh.md`)](docs/SFT_vs_RL_Tool_Use_Deep_Dive_zh.md)
+[**English (Default)**](README.md) &nbsp;|&nbsp; [**简体中文 (点击切换)**](README_zh.md)
+
+</div>
 
 ---
 
@@ -65,7 +72,7 @@ To provide dense intermediate gradients while preventing reward hacking, `rlla_r
 
 ```text
 agent-rl-lab/
-├── assets/                                  # Publication-grade figures (300 DPI PNG)
+├── assets/                                  # Figures (English fig*.png & Chinese fig*_zh.png)
 ├── docs/
 │   ├── SFT_vs_RL_Tool_Use_Deep_Dive.md      # Full Technical Report (English)
 │   └── SFT_vs_RL_Tool_Use_Deep_Dive_zh.md   # Full Technical Report (Chinese)

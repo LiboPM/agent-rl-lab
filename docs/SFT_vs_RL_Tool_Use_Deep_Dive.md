@@ -1,6 +1,15 @@
+<div align="center">
+
 # SFT Memorization vs. RL Generalization in Tool Use: An Empirical Study on RLLA-4k and BFCL-v3
 
-**English** | [简体中文](SFT_vs_RL_Tool_Use_Deep_Dive_zh.md)
+[![English](https://img.shields.io/badge/Report-English-2563eb?style=for-the-badge)](SFT_vs_RL_Tool_Use_Deep_Dive.md)
+[![简体中文](https://img.shields.io/badge/技术报告-简体中文-059669?style=for-the-badge)](SFT_vs_RL_Tool_Use_Deep_Dive_zh.md)
+
+[**English (Current)**](SFT_vs_RL_Tool_Use_Deep_Dive.md) &nbsp;|&nbsp; [**简体中文 (点击切换)**](SFT_vs_RL_Tool_Use_Deep_Dive_zh.md)
+
+</div>
+
+---
 
 ## Abstract
 

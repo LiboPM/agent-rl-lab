@@ -1,6 +1,6 @@
 <div align="center">
 
-# Supervised Fine-Tuning vs. Reinforcement Learning for LLM Tool Use: A Three-Stage Empirical Study Across RLLA-4k, Expanded In-Domain 500, and BFCL-v3
+# Supervised Fine-Tuning vs. Reinforcement Learning (GRPO) for LLM Tool Use: Mechanisms, In-Domain/OOD Boundaries, and Trade-Offs
 
 [![Back to README (EN)](https://img.shields.io/badge/README-English-2563eb?style=for-the-badge)](../README.md)
 [![中文版深度报告](https://img.shields.io/badge/报告-中文深度剖析-059669?style=for-the-badge)](SFT_vs_RL_Tool_Use_Deep_Dive_zh.md)
@@ -13,12 +13,13 @@
 
 ## Abstract
 
-When adapting a pretrained base language model (`Qwen3-4B-Base`) into a reliable **Function Calling / Tool-Use Agent**, researchers and practitioners face three fundamental questions:
-1. **Stage 1 — Supervised Fine-Tuning (`Pure SFT`) Overfitting & Generalization**: Should SFT checkpoints be selected via training loss (`train_loss`) or validation loss (`eval_loss`), and why does full-dataset SFT achieve strong In-Domain accuracy while degrading Out-of-Domain (OOD) generalization?
-2. **Stage 2 — Direct Reinforcement Learning (`Zero-RL GRPO`) & Anti-Hacking Reward Engineering**: Why does outcome-based Group Relative Policy Optimization (`GRPO`) preserve `100%` genuine multi-step `<think>` reasoning on the exact same dataset where SFT collapses to `0.0%` genuine Chain-of-Thought (CoT)? How can dense reward shaping (`v1` $\rightarrow$ `v2`) eliminate optional-parameter reward hacking?
-3. **Stage 3 — Resolving the `SFT + GRPO` Policy Entropy Collapse Paradox**: Why does initializing GRPO from a converged Full-SFT model stall completely, and how does a lightweight, genuine-reasoning **Cold-Start SFT (`320` samples, `1` Epoch) + GRPO** pipeline preserve policy entropy and achieve positive synergy?
+When post-training a pretrained base language model (`Qwen3-4B-Base`) into a **Function Calling / Tool-Use Agent**, the central engineering question is: **How do Supervised Fine-Tuning (`SFT`) and Reinforcement Learning (`RL / GRPO`) fundamentally differ as training paradigms, where does RL provide irreplaceable value over SFT, and what concrete disadvantages and costs does RL incur?**
 
-In this study, we train and evaluate **8 controlled model checkpoints** on `Qwen3-4B-Base` using **LLaMA-Factory (SFT)** and **VeRL (GRPO)** across a 32-GPU (4 × 8 NVIDIA A800-80GB) cluster. We evaluate all models across **4 benchmark suites totaling `3,171` test instances**—including the original `RLLA-4k` test split (`80`), a newly constructed **`500`-sample AST-verified Expanded In-Domain Test Set**, `BFCL-v3 Standard` (`1,240`), and `BFCL-v3 Live` (`1,351`)—and introduce a **7-category Error Taxonomy (`E1`–`E7`)** to diagnose every failure mode quantitatively.
+To avoid the common pitfalls of comparing arbitrary training steps or relying on a single small test split, this study conducts a **controlled, head-to-head comparison of SFT vs. RL** across `3,171` evaluation samples on a 32-GPU NVIDIA A800 cluster:
+1. **Fair Comparison Prerequisite — Validation-Optimal Checkpoint Selection (Sections 3–5)**: We track SFT's `train_loss` vs. `eval_loss` overfitting inflection point (`1.0 Ep` vs. `2.0 Ep`), GRPO's validation `val_reward` peak (`v1` $\rightarrow$ `v2` anti-hacking reward), and the policy entropy conditions governing `SFT + GRPO` (`Full-SFT + GRPO` vs. `Cold-Start SFT + GRPO`).
+2. **In-Domain vs. Out-of-Domain Capability Boundaries (Sections 2 & 6)**: Across **seen In-Domain tools** (`RLLA-80` + a `500`-sample AST-verified Expanded In-Domain set), **unseen OOD tools** (`BFCL-v3 Standard 1,000` + `BFCL-Live 1,351`), and **no-tool abstention** (`BFCL Irrelevance 240`), we quantify both RL's massive lead on OOD schema generalization and compositional calls, and SFT's clear edge in training speed, latency, and irrelevance abstention.
+3. **Microscopic Failure Attribution (`E1`–`E7` Error Taxonomy, Section 7)**: We classify every failure across 7 error modes, contrasting SFT's vulnerability to `E7` type/quote contamination, `E4` missing required keys, and `E2` false abstentions against RL's susceptibility to `E5` optional-key stuffing and over-triggering bias.
+4. **Symmetric Pros/Cons Synthesis & No-GT Scalability (Sections 8 & 9)**: We synthesize the **four core advantages** and **four objective disadvantages** of RL relative to SFT, alongside a 3-tier label-free verification pipeline and a production paradigm selection guide.
 
 ![Comprehensive 4-Benchmark Overview Across 2,931 Tool-Calling Samples](../assets/fig1_sft_vs_rl_overview.png)
 
@@ -34,7 +35,7 @@ In this study, we train and evaluate **8 controlled model checkpoints** on `Qwen
 6. [In-Domain Label Quality Audit & Where RL Outperforms SFT Within Fixed Domains](#6-in-domain-label-quality-audit--where-rl-outperforms-sft-within-fixed-domains)
 7. [Quantitative Error Taxonomy (`E1`–`E7`) & Case-by-Case Qualitative Analysis](#7-quantitative-error-taxonomy-e1e7--case-by-case-qualitative-analysis)
 8. [Reward Construction Without Ground Truth (No-GT) & Production Selection Guidelines](#8-reward-construction-without-ground-truth-no-gt--production-selection-guidelines)
-9. [Conclusion: SFT vs. RL — Where Does RL Provide Irreplaceable Value in Tool Use?](#9-conclusion-sft-vs-rl--where-does-rl-provide-irreplaceable-value-in-tool-use)
+9. [Conclusion: Comprehensive Comparison of SFT vs. RL — Advantages, Disadvantages, and Boundaries](#9-conclusion-comprehensive-comparison-of-sft-vs-rl--advantages-disadvantages-and-boundaries)
 
 ---
 
@@ -247,36 +248,47 @@ When scaling RL to unannotated production logs where human Ground Truth `<tool_c
 
 ---
 
-## 9. Conclusion: SFT vs. RL — Where Does RL Provide Irreplaceable Value in Tool Use?
+## 9. Conclusion: Comprehensive Comparison of SFT vs. RL — Advantages, Disadvantages, and Boundaries
 
-Returning to the motivating question of this entire study: **Starting from the exact same `Qwen3-4B-Base` model and training set, how do Supervised Fine-Tuning (SFT) and Reinforcement Learning (RL) fundamentally differ as training paradigms, and where does RL provide irreplaceable value?**
+Returning to the motivating question of this study: **Starting from the exact same `Qwen3-4B-Base` model and training corpus, how do Supervised Fine-Tuning (`SFT`) and Reinforcement Learning (`RL`) fundamentally differ, where does RL excel, and where does RL fall short?**
 
-### 9.1 Mechanistic Comparison: Token-Level Imitation vs. Sequence-Level Schema Alignment
+### 9.1 Mechanistic Comparison: Token-Level Imitation vs. Sequence-Level Schema Exploration
 
 | Dimension | Supervised Fine-Tuning (`Pure SFT`) | Reinforcement Learning (`Zero-RL GRPO` / `Cold-Start SFT + GRPO`) |
 | :--- | :--- | :--- |
-| **Supervision Mechanism** | **Token-Level Behavior Cloning (Teacher Forcing)**: Minimizes literal token cross-entropy; a dropped parameter on the 3rd tool call carries only $1/T$ loss weight. | **Sequence-Level Outcome Verification**: Scores the final `<tool_call>` AST holistically; any missing key or type error forfeits the `+4.0` exact-match reward. |
-| **Core Acquired Skill** | **Memorizes Seen API Surface Patterns**: Rapidly fits seen tool names, default parameter habits, and even truncation/quoting bugs (`73.75%` on `RLLA-80`). | **Learns Generalizable Schema Reasoning**: Dynamically inspects arbitrary JSON Schemas in the prompt, checks required types, and derives parameters. |
-| **Impact on `<think>` CoT** | Applies token loss to boilerplate `<think>` strings, wiping out `100%` of pretrained reasoning (`0.0%` genuine CoT). | Leaves `<think>` text unconstrained, naturally preserving and amplifying **`100.0%` genuine multi-step CoT** because reasoning improves call accuracy. |
-| **Overfitting Failure Mode** | Over-training (`1.0` $\rightarrow$ `2.0 Ep`) triggers a **`9.8×` surge in `E2` false abstentions** on unfamiliar `BFCL-Live` tools (`-3.40%` OOD drop). | Naive partial rewards can induce `E5` optional-key stuffing, which is cleanly resolved via `-0.75/key` penalties and a `+3.40` non-exact cap. |
-| **Compute & Online Latency** | **Minimal** (5–10 mins on 8 GPUs; concise `~328`-char outputs). | **Higher** (requires online multi-GPU rollouts; `~270`-char `<think>` latency). |
+| **Supervision Mechanism** | **Token-Level Behavior Cloning (Teacher Forcing)**: Minimizes literal token cross-entropy; a dropped key on the 3rd tool call carries only $1/T$ weight. | **Sequence-Level Outcome Verification**: Scores the final `<tool_call>` AST holistically (`+4.0` strictly reserved for 100% exact match). |
+| **Core Acquired Skill** | **Memorizes Seen API Conventions & Refusal Thresholds**: Rapidly fits seen tool names, default habits, refusal phrasing, and even label artifacts. | **Learns Generalizable Schema Reasoning**: Dynamically inspects arbitrary JSON Schemas in the prompt, checks required types, and derives parameters. |
+| **Impact on `<think>` CoT** | Applies token loss to boilerplate `<think>` strings, wiping out `100%` of pretrained reasoning (`0.0%` genuine CoT). | Leaves `<think>` text unconstrained, naturally preserving **`100.0%` genuine multi-step CoT** because reasoning improves call accuracy. |
+| **Primary Failure Risk** | Over-training (`1.0` $\rightarrow$ `2.0 Ep`) triggers a **`9.8×` surge in `E2` false abstentions** on unfamiliar `BFCL-Live` tools (`-3.40%` OOD drop). | Vulnerable to `E5` optional-key reward hacking if unpenalized, and exhibits over-triggering bias when negative abstention samples are scarce. |
+| **Compute & Latency** | **8 GPUs, 5–10 mins** (`0.67–1.3 GPU-hrs`); concise outputs (`~328` chars), low online latency. | **32 GPUs, 32–75 mins** (`17–40 GPU-hrs`); explicit CoT outputs (`~510` chars), higher inference latency. |
 
-### 9.2 Four Irreplaceable Values of RL Over SFT in Tool-Calling Agents
+### 9.2 Four Core Advantages of RL Over SFT (Where RL Wins)
 
-1. **Value 1: Zero-Shot Generalization to Unseen Tools (`+21.10%` on `BFCL-v3`)**
-   - SFT memorizes seen APIs but fails to generalize dynamic JSON Schema reading to unseen tools (`60.20%–60.40%` on `BFCL-v3`, committing **`7.6×` more `E7` type/quote errors** and **`8.0×` more `E4` missing-required-key errors** than RL).
-   - **RL elevates unseen OOD tool-calling accuracy to `81.50%` (`+21.10%` over SFT)** and leads by **`+6.3%–9.7%` on enterprise `BFCL-Live` (`1,351` queries)**. For open tool ecosystems (MCP servers, dynamic plugins), RL is critical for out-of-distribution reliability.
-2. **Value 2: Compositional Multi-Tool Planning & Implicit Arithmetic Reasoning**
-   - Even within fixed in-domain tools, SFT only covers direct literal slot-filling (~80% of queries). Whenever arguments require implicit arithmetic (0-indexed pagination `skip = 20 - 1 = 19`, inclusive intervals `80 - 70 + 1 = 11`) or multi-tool composition (`BFCL Parallel-Multiple`: **`76.50%` RL vs. `41.50%` SFT, `+35.0%` lead**), RL succeeds through genuine `<think>` derivation and sequence-level exact-match credit assignment.
-3. **Value 3: Immunity to Imperfect / Boilerplate Training Annotations**
-   - Practical datasets frequently lack genuine reasoning traces or contain annotation noise (`99.36%` boilerplate `<think>` and `20%` quoting/truncation bugs in `RLLA-4k`). Whereas SFT is upper-bounded by demonstration flaws, outcome-based RL verifies only the final tool call, **retaining `100%` genuine CoT even on placeholder-heavy datasets** and reaching **`82.80%` on clean In-Domain `xLAM-250`** (matching Full-SFT's `83.60%`).
-4. **Value 4: Label-Free Self-Evolution on Unannotated Production Logs (No-GT Scalability)**
-   - SFT cannot improve without paired Ground Truth annotations; RL can continuously train on raw production traffic using **JSON Schema validation + sandbox dry-run execution outcomes** as deterministic verifiers.
+1. **Zero-Shot Generalization to Unseen Tools (`+21.10%` on `BFCL-v3`)**:
+   SFT memorizes seen APIs (`60.20%–60.40%` on `BFCL-v3`), whereas **RL reaches `81.50%` Strict EM (`+21.10%` lead)** and leads by **`+6.3%–9.7%` on `BFCL-Live` (`1,351` queries)**—reducing `E7` type/quote errors by **`87%`** and `E4` missing-required-key errors by **`85%`**.
+2. **Compositional Multi-Tool Planning & Implicit Arithmetic Reasoning**:
+   Even within seen In-Domain tools, whenever arguments require arithmetic derivation (0-indexed pagination `skip = 20 - 1 = 19`, inclusive intervals `80 - 70 + 1 = 11`) or parallel multi-tool planning (`BFCL Parallel-Multiple`: **`76.50%` RL vs. `41.50%` SFT, `+35.0%` lead**), RL succeeds via genuine `<think>` reasoning and sequence-level credit assignment.
+3. **Immunity to Imperfect / Boilerplate Training Annotations**:
+   Despite `99.36%` boilerplate `<think>` strings and `20%` quoting/truncation bugs in `RLLA-4k`, outcome-based RL verifies only the final tool call, **retaining `100%` genuine CoT** and reaching **`82.80%` on clean In-Domain `xLAM-250`** (matching Full-SFT's `83.60%`).
+4. **Label-Free Self-Evolution on Unannotated Production Logs (No-GT Scalability)**:
+   Unlike SFT, RL can continuously train on raw production traffic using **JSON Schema validation + sandbox dry-run execution outcomes** as deterministic verifiers.
 
-### 9.3 Final Verdict: Clear Division of Labor Between SFT and RL
+### 9.3 Four Objective Disadvantages & Limitations of RL Compared to SFT (Where RL Loses / Costs More)
 
-SFT and RL are not mutually exclusive substitutes; each occupies a well-defined role:
-- **Use Early-Stopped `Pure SFT (1.0 Ep)`** when operating in a **closed, static domain** (<20 unchanging internal APIs, simple slot extraction, strict latency ceiling).
-- **Use `Lightweight Genuine-CoT Cold-Start SFT (320 samples, 1 Ep) + Anti-Hacking GRPO`** for **open-world, multi-candidate, or reasoning-intensive tool use**: avoid `Full-SFT -> GRPO` (which collapses policy entropy to `0.085` and stalls exploration), and instead let a 5-step SFT warm-up establish format compliance (`93.75%`) while preserving entropy (`0.492`) so GRPO can maximize schema generalization and real-world robustness (`+2.7486` peak validation reward; **`58.99%` best `BFCL-Live` Strict EM**).
+Equally important, our empirical results expose four concrete areas where **RL incurs steep engineering costs or trails SFT**:
+
+1. **Steep Training Compute & Wall-Clock Cost (`15×–60×` GPU-Hours)**:
+   `Pure SFT (1.0 Ep)` converges in **5 minutes** on 8 A800 GPUs (`0.67 GPU-hrs`), whereas `Pure RL (8.0 Ep)` requires **75 minutes** on 32 A800 GPUs (`40 GPU-hrs`; `~17 GPU-hrs` for `Cold-Start SFT + GRPO`) due to online $G=8$ vLLM rollout generation per step.
+2. **Higher Online Inference Latency & Token Overhead (`~1.6×` Output Length)**:
+   RL relies on `~270–280` characters of `<think>` reasoning (`~510` total chars vs. `~328` chars for SFT), introducing non-trivial decoding latency for ultra-low-latency applications (`<300ms` voice or vehicle-control agents).
+3. **Weaker Irrelevance Abstention & Action Over-Triggering (`BFCL Irrelevance`: `15.8%–22.5%` RL vs. `76.3%–89.2%` SFT)**:
+   On `BFCL Irrelevance (240 queries where no candidate tool is relevant)`, **`Pure SFT` achieves `76.25%–89.17%`, whereas `Pure RL / Cold-Start SFT+RL` achieves only `15.83%–22.50%`**. When negative no-tool examples are scarce (~11% in `RLLA-4k`) and partial format/tool rewards encourage emitting tool calls, RL develops a strong **action bias (over-triggering)**, whereas SFT faithfully memorizes refusal boundaries and standard refusal phrasing. Deploying RL in high-abstention domains requires explicitly up-weighting no-tool negative examples and mis-invocation penalties.
+4. **High Engineering Sensitivity to Reward Hacking & Policy Entropy Collapse**:
+   SFT optimizes cross-entropy reliably out of the box; RL readily exploits minor reward loopholes (`50` `E5` optional-key stuffing errors in `v1`) and stalls completely if initialized from a low-entropy Full-SFT checkpoint (`actor/entropy = 0.085` $\implies \sigma_r = 0 \implies A_i \equiv 0$).
+
+### 9.4 Final Verdict: Balancing SFT and RL in Practice
+
+- **Choose Early-Stopped `Pure SFT (1.0 Ep, Min Eval-Loss)`** for **closed, static APIs** (<20 fixed tools, simple slot extraction, strict latency ceiling, and high refusal-phrasing fidelity).
+- **Choose `Lightweight Genuine-CoT Cold-Start SFT (320 samples, 1 Ep) + Anti-Hacking GRPO`** (with balanced no-tool negative examples) for **open-world ecosystems (MCP), large multi-candidate tool tables (`10–20+`), and compositional/arithmetic reasoning**: a 1-minute SFT warm-up resolves initial XML formatting (`93.75%`) while preserving policy entropy (`0.492`), enabling GRPO to achieve peak validation reward (`+2.7486`) and the **highest `BFCL-Live` Strict EM (`58.99%`)** across all 8 models.
 
 

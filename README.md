@@ -203,7 +203,34 @@ To understand *how* each model fails rather than just reporting aggregate accura
 
 ---
 
-## 5. Repository Structure & Quick Reproduction
+## 5. Conclusion: Five Core Empirical Takeaways & Practical Selection Guide
+
+Synthesizing all three stages and 8 controlled checkpoints across `3,171` evaluation instances yields **five definitive conclusions** on post-training LLMs for tool use:
+
+1. **Capability Boundary — SFT Memorizes Surface Conventions, Whereas RL Learns Schema-Driven Reasoning**:
+   - **Full-dataset SFT** rapidly memorizes seen API names, default conventions, and even label truncation bugs in 5–10 minutes on 8 GPUs (`73.75%` on `RLLA-80`), but stagnates at `60.40%` Strict EM on unseen OOD schemas (`7.6×` more `E7` type/quote errors and `8×` more `E4` missing required keys than RL).
+   - **Outcome-based GRPO** forces the policy to dynamically inspect the prompt's JSON Schema, verify required keys, and derive arithmetic offsets inside `<think>`, reaching **`81.50%` Strict EM on OOD `BFCL-v3`** (`+21.10%` over SFT) while achieving **`82.80%` on clean In-Domain `xLAM-250`** (virtually matching Full-SFT's `83.60%`).
+2. **SFT Early-Stopping Law — Minimizing `train_loss` Past the `eval_loss` Inflection Point Induces Severe OOD False Abstention**:
+   - Training Full-SFT past `1.0 Epoch` (`eval_loss = 0.1582` minimum) to `2.0 Epochs` (`train_loss = 0.0196`, `eval_loss = 0.1700`) yields `<1.0%` In-Domain gain while degrading real-world OOD `BFCL-Live` accuracy by **`-3.40%`**, driven by a **`9.8×` surge in False Abstention errors (`E2`: `5` $\rightarrow$ `49`)**. Tool-use SFT checkpoints must be selected at minimum `eval_loss`.
+3. **Supervision Granularity — Boilerplate `<think>` Targets Destroy CoT Under SFT, Whereas Outcome-Only RL Preserves `100%` Genuine Reasoning**:
+   - Applying token-level cross-entropy to datasets with placeholder `<think>` strings collapses genuine CoT to `0.0%`, causing systematic failures on implicit arithmetic tasks (e.g., 0-indexed pagination `skip = 20 - 1 = 19`, inclusive intervals `80 - 70 + 1 = 11`). Scoring only `<tool_call>` ASTs in RL leaves `<think>` unconstrained to evolve genuine multi-step reasoning (`100.0%` CoT retention).
+4. **The `SFT + RL` Synergy Law — Policy Entropy Determines Whether Subsequent RL Succeeds or Stalls**:
+   - Standard `Full-SFT -> GRPO` stalls because heavy SFT collapses policy entropy to `0.085`, producing identical $G=8$ rollouts ($\sigma_r = 0 \implies A_i = 0$).
+   - **The effective `SFT + RL` recipe** is **Small Genuine-CoT Cold-Start SFT (`320` samples, `1 Epoch / 5 steps`) + Anti-Hacking GRPO**: lightweight warm-up lifts `Step 0` format compliance to `93.75%` while preserving healthy policy entropy (`0.492`), enabling GRPO to reach the highest validation reward (`+2.7486`) and the **highest `BFCL-Live` Strict EM (`58.99%`)** across all models.
+5. **Reward Engineering Law — Dense Partial Credit Requires Explicit Anti-Reward-Hacking Guards**:
+   - Rewarding partial parameter matches without penalizing redundant optional keys induces optional-parameter stuffing (`50` `E5` errors in `v1`). Combining a **`-0.75 / extra_key` penalty** with a **`+3.40` non-exact cap (`+4.00` exact match)** cuts `E5` hallucinations by `28%` and boosts In-Domain Strict EM by `+4.20%`.
+
+### Production Paradigm Selection Matrix
+
+| Target Scenario & Constraints | Recommended Post-Training Recipe | Key Empirical Support |
+| :--- | :--- | :--- |
+| **Closed, Static Internal APIs** (<20 fixed tools, strict latency cap) | **`Pure SFT (1.0 Ep, Min Eval-Loss)`** | Converges in 5 mins on 8 GPUs with short outputs (`~328` chars); early stopping avoids Epoch 2 false abstentions. |
+| **Open-World / MCP Tool Ecosystems** (100+ dynamic unseen schemas) | **`Pure RL (Zero-RL GRPO, v2 Reward)`** | Achieves **`81.50%` Strict EM** on OOD `BFCL-v3` (`+21.1%` over SFT) and `82.80%` on clean In-Domain `xLAM-250`. |
+| **Enterprise Multi-Candidate Assistants** (Fast RL convergence + live robustness) | **`Cold-Start SFT (320 Genuine-CoT) + GRPO (v2)`** | Eliminates early format exploration while preserving entropy (`0.492`); achieves best **`58.99%` Strict EM** on `BFCL-Live`. |
+
+---
+
+## 6. Repository Structure & Quick Reproduction
 
 ```text
 agent-rl-lab/

@@ -34,7 +34,7 @@ In this study, we train and evaluate **8 controlled model checkpoints** on `Qwen
 6. [In-Domain Label Quality Audit & Where RL Outperforms SFT Within Fixed Domains](#6-in-domain-label-quality-audit--where-rl-outperforms-sft-within-fixed-domains)
 7. [Quantitative Error Taxonomy (`E1`–`E7`) & Case-by-Case Qualitative Analysis](#7-quantitative-error-taxonomy-e1e7--case-by-case-qualitative-analysis)
 8. [Reward Construction Without Ground Truth (No-GT) & Production Selection Guidelines](#8-reward-construction-without-ground-truth-no-gt--production-selection-guidelines)
-9. [Conclusion: Five Empirical Laws of SFT vs. RL for LLM Tool Use](#9-conclusion-five-empirical-laws-of-sft-vs-rl-for-llm-tool-use)
+9. [Conclusion: SFT vs. RL — Where Does RL Provide Irreplaceable Value in Tool Use?](#9-conclusion-sft-vs-rl--where-does-rl-provide-irreplaceable-value-in-tool-use)
 
 ---
 
@@ -247,24 +247,36 @@ When scaling RL to unannotated production logs where human Ground Truth `<tool_c
 
 ---
 
-## 9. Conclusion: Five Empirical Laws of SFT vs. RL for LLM Tool Use
+## 9. Conclusion: SFT vs. RL — Where Does RL Provide Irreplaceable Value in Tool Use?
 
-Synthesizing our three-stage investigation across 8 controlled models, `3,171` evaluation samples, and the `E1`–`E7` error taxonomy yields five overarching conclusions that directly answer our initial research questions:
+Returning to the motivating question of this entire study: **Starting from the exact same `Qwen3-4B-Base` model and training set, how do Supervised Fine-Tuning (SFT) and Reinforcement Learning (RL) fundamentally differ as training paradigms, and where does RL provide irreplaceable value?**
 
-1. **Law 1 (Capability Boundary): SFT Memorizes Surface API Conventions, Whereas RL Learns Generalizable Schema Reasoning**
-   - Full-dataset SFT excels at memorizing seen API signatures, quoting conventions, and even dataset truncation artifacts (`73.75%` on `RLLA-80`), but fails to generalize dynamic JSON Schema reading to unseen tools (`60.40%` on `BFCL-v3`, committing **`7.6×` more `E7` type/quote errors** and **`8.0×` more `E4` missing-required-key errors** than RL).
-   - Outcome-based GRPO trains the policy to inspect arbitrary tool schemas and verify argument constraints inside `<think>`, reaching **`81.50%` Strict EM on OOD `BFCL-v3`** (`+21.10%` over SFT; `+35.0%` on `Parallel-Multiple`) while reaching **`82.80%` on clean In-Domain `xLAM-250`** (nearly matching Full-SFT's `83.60%`).
+### 9.1 Mechanistic Comparison: Token-Level Imitation vs. Sequence-Level Schema Alignment
 
-2. **Law 2 (SFT Early-Stopping): SFT Checkpoints Must Be Selected at Minimum `eval_loss`; Minimizing `train_loss` Induces Severe OOD False Abstention**
-   - Continuing SFT from `1.0 Epoch` (`eval_loss = 0.1582` minimum) to `2.0 Epochs` (`train_loss = 0.0196`, `eval_loss = 0.1700`) yields only `+1.00%` on unseen queries over training APIs (`InDom-500`), while degrading real-world multi-candidate OOD accuracy (`BFCL-Live`) by **`-3.40%` (`52.70%` $\rightarrow$ `49.30%`)** due to a **`9.8×` explosion in False Abstention errors (`E2`: `5` $\rightarrow$ `49`)**.
+| Dimension | Supervised Fine-Tuning (`Pure SFT`) | Reinforcement Learning (`Zero-RL GRPO` / `Cold-Start SFT + GRPO`) |
+| :--- | :--- | :--- |
+| **Supervision Mechanism** | **Token-Level Behavior Cloning (Teacher Forcing)**: Minimizes literal token cross-entropy; a dropped parameter on the 3rd tool call carries only $1/T$ loss weight. | **Sequence-Level Outcome Verification**: Scores the final `<tool_call>` AST holistically; any missing key or type error forfeits the `+4.0` exact-match reward. |
+| **Core Acquired Skill** | **Memorizes Seen API Surface Patterns**: Rapidly fits seen tool names, default parameter habits, and even truncation/quoting bugs (`73.75%` on `RLLA-80`). | **Learns Generalizable Schema Reasoning**: Dynamically inspects arbitrary JSON Schemas in the prompt, checks required types, and derives parameters. |
+| **Impact on `<think>` CoT** | Applies token loss to boilerplate `<think>` strings, wiping out `100%` of pretrained reasoning (`0.0%` genuine CoT). | Leaves `<think>` text unconstrained, naturally preserving and amplifying **`100.0%` genuine multi-step CoT** because reasoning improves call accuracy. |
+| **Overfitting Failure Mode** | Over-training (`1.0` $\rightarrow$ `2.0 Ep`) triggers a **`9.8×` surge in `E2` false abstentions** on unfamiliar `BFCL-Live` tools (`-3.40%` OOD drop). | Naive partial rewards can induce `E5` optional-key stuffing, which is cleanly resolved via `-0.75/key` penalties and a `+3.40` non-exact cap. |
+| **Compute & Online Latency** | **Minimal** (5–10 mins on 8 GPUs; concise `~328`-char outputs). | **Higher** (requires online multi-GPU rollouts; `~270`-char `<think>` latency). |
 
-3. **Law 3 (Reasoning Preservation): Boilerplate `<think>` Targets Destroy Chain-of-Thought Under SFT, Whereas Outcome-Only RL Preserves `100%` Genuine CoT**
-   - Applying token-level cross-entropy to datasets containing static placeholder `<think>` strings (`99.36%` of `RLLA-4k`) overwrites pretrained reasoning (`0.0%` genuine CoT), causing systematic off-by-one and arithmetic failures even on In-Domain queries (`rlla_test_20`, `rlla_test_55`). Scoring solely `<tool_call>` ASTs during RL leaves `<think>` free to evolve genuine multi-step reasoning (`100.0%` retention).
+### 9.2 Four Irreplaceable Values of RL Over SFT in Tool-Calling Agents
 
-4. **Law 4 (`SFT + RL` Synergy): Policy Entropy Governs `SFT -> RL` Trainability — `Lightweight Genuine-CoT Cold-Start + GRPO` Beats `Full-SFT + GRPO`**
-   - Standard `Full-SFT -> GRPO` stalls (`75/80` outputs unchanged after 120 steps) because multi-epoch SFT collapses token-level policy entropy to `0.085`, eliminating intra-group rollout diversity ($\sigma_r = 0 \implies A_i \equiv 0$).
-   - **The optimal `SFT + RL` recipe** warms up the base model for just `1 Epoch` (`5` steps) on **`320` rejection-sampled genuine-CoT trajectories**, lifting initial format compliance from `2.5%` to `93.75%` while preserving healthy policy entropy (`0.492`). Subsequent GRPO (`v2`) reaches the highest validation reward (`+2.7486`) and the **highest `BFCL-Live` Strict EM (`58.99%`)** across all 8 models.
+1. **Value 1: Zero-Shot Generalization to Unseen Tools (`+21.10%` on `BFCL-v3`)**
+   - SFT memorizes seen APIs but fails to generalize dynamic JSON Schema reading to unseen tools (`60.20%–60.40%` on `BFCL-v3`, committing **`7.6×` more `E7` type/quote errors** and **`8.0×` more `E4` missing-required-key errors** than RL).
+   - **RL elevates unseen OOD tool-calling accuracy to `81.50%` (`+21.10%` over SFT)** and leads by **`+6.3%–9.7%` on enterprise `BFCL-Live` (`1,351` queries)**. For open tool ecosystems (MCP servers, dynamic plugins), RL is critical for out-of-distribution reliability.
+2. **Value 2: Compositional Multi-Tool Planning & Implicit Arithmetic Reasoning**
+   - Even within fixed in-domain tools, SFT only covers direct literal slot-filling (~80% of queries). Whenever arguments require implicit arithmetic (0-indexed pagination `skip = 20 - 1 = 19`, inclusive intervals `80 - 70 + 1 = 11`) or multi-tool composition (`BFCL Parallel-Multiple`: **`76.50%` RL vs. `41.50%` SFT, `+35.0%` lead**), RL succeeds through genuine `<think>` derivation and sequence-level exact-match credit assignment.
+3. **Value 3: Immunity to Imperfect / Boilerplate Training Annotations**
+   - Practical datasets frequently lack genuine reasoning traces or contain annotation noise (`99.36%` boilerplate `<think>` and `20%` quoting/truncation bugs in `RLLA-4k`). Whereas SFT is upper-bounded by demonstration flaws, outcome-based RL verifies only the final tool call, **retaining `100%` genuine CoT even on placeholder-heavy datasets** and reaching **`82.80%` on clean In-Domain `xLAM-250`** (matching Full-SFT's `83.60%`).
+4. **Value 4: Label-Free Self-Evolution on Unannotated Production Logs (No-GT Scalability)**
+   - SFT cannot improve without paired Ground Truth annotations; RL can continuously train on raw production traffic using **JSON Schema validation + sandbox dry-run execution outcomes** as deterministic verifiers.
 
-5. **Law 5 (Anti-Hacking Reward Shaping): Dense Partial Credit Requires Explicit Redundant-Key Penalties and Non-Exact Caps**
-   - Naive partial-credit rewards incentivize optional-parameter stuffing (`50` `E5` errors in `v1`). Pairing a **`-0.75 / extra_key` penalty** with a **`+3.40` non-exact cap (`+4.00` exact match)** cuts `E5` extra-key hallucinations by **`28%`**, reduces `E3b` call-count errors by **`36%`**, and converts dense exploration signals into strict exact matches (`+4.20%` on `InDom-500`).
+### 9.3 Final Verdict: Clear Division of Labor Between SFT and RL
+
+SFT and RL are not mutually exclusive substitutes; each occupies a well-defined role:
+- **Use Early-Stopped `Pure SFT (1.0 Ep)`** when operating in a **closed, static domain** (<20 unchanging internal APIs, simple slot extraction, strict latency ceiling).
+- **Use `Lightweight Genuine-CoT Cold-Start SFT (320 samples, 1 Ep) + Anti-Hacking GRPO`** for **open-world, multi-candidate, or reasoning-intensive tool use**: avoid `Full-SFT -> GRPO` (which collapses policy entropy to `0.085` and stalls exploration), and instead let a 5-step SFT warm-up establish format compliance (`93.75%`) while preserving entropy (`0.492`) so GRPO can maximize schema generalization and real-world robustness (`+2.7486` peak validation reward; **`58.99%` best `BFCL-Live` Strict EM**).
+
 
